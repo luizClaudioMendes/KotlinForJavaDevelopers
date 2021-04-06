@@ -173,6 +173,68 @@ you don´t have to alter any surrounding java code at all, because kotlin and ja
 
 you don´t have to convert everything to kotlin, so you can keep the java code forever and convert as you go or pick any strategy you like.
 
+### "Hello, world" example
 
+#### top level functions
+let look at this hello world example:
+
+hello, kotlin example
+
+    package intro
+    
+    fun main () {
+    	val name = "Kotlin"
+    	println("Hello, $name!")
+    }
+
+now let´s try to compare it with the similar code written in java.
+
+the first things that comes to mind is these keywords (fun, val) for functional and variable declaration.
+
+if you look closer you will see that there is no class here. this function is declared at the top level and it is the only content of the file.
+
+> YOU CAN DEFINE FUNCTIONS AT THE TOP LEVEL
+
+in kotlin you can define the function at the package level, so you don´t need to put everything inside a class, to define a lot of static utility functions inside a special util class. if you need general functions without binding to the specific class, you can define them at the package level
+
+#### main with or without arguments
+before kotlin version 1.3, you had to use arguments in the main function just like java. but after version 1.3, you can ommit these arguments, if they are never going to be used:
+
+    fun main(args: Array<String>) {...} //before kotlin 1.3
+    
+    fun main() {...} //after kotlin 1.3
+    
+
+in java, the 'main' method always requires the program argument list (public static void (String[] args)) but for simple use-cases, these program arguments are often unused.
+
+let´s do an example. 
+
+if no program arguments are passed we are going to print "kotlin", or "hello" and the value of the first program argument passed.
+
+    package intro
+    
+    fun main(args: Array<String>) {
+    	val name = if (args.size > 0) args[0] else "Kotlin"
+    	println("Hello, $name!")
+    }
+    
+
+there is NO SPECIAL BUILT-IN SYNTAX FOR ARRAYS. under the hood, at the bytecode level, it´s the same as in java. however, in the code, Arrays looks like a REGULAR CLASS WITH GENERIC ARGUMENTS (Array<String))
+
+in kotlkin, 'if'  is an expression. you can assign the result of 'if' into a variable or return it from a function.
+
+'IF' RETURNS YOU THE RESULT VALUE. 
+
+#### strings templates
+in kotlin, you can insert a string literal by using a dollar sign ($) and a variable name.
+if you need to printout a more complicated expression, like a function call or a getter, or some arithmetic expression you can insert the value of this expression, but you HAVE TOSURROUND IT WITH CURLY BRACES (${function ...})
+
+what happens if the value inserted is a null?
+under the hood kotlin uses java.lang.String, and that means that such things work directly as in java.
+in java, if you try to add the value 'null' to a string, the word 'null' will be concatenated to the string. in kotlin it´s absolutely the same.
+
+java.lang.Strings transforms 'null' constant into a string 'null'.
+
+if you want an empty string instead of 'null', as in java, you have tod process that explicitly.
 
 
