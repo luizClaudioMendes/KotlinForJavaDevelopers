@@ -162,3 +162,17 @@ fun updateWeather (degrees: Int) {
 
 the automatic converter DO NOT CONVERT TO THE BEST KOTLIN CODE, you have to do it manually.
 
+### Introducing Kotlin to an existing project
+It´s is recommended that java programmers, when switching to Kotlin, uses real life scenarios because this way you get a real feel of the language and see how it works in the daily work. 
+
+So, pickup a small portion of existing java code and convert it to kotlin using the java to kotlin conversion tool and see if you like the kotlin code better than the existing java code you had before.
+
+then, you can select a feature or class and write it from scratch in kotlin to see how it´s done step by step.
+
+you don´t have to alter any surrounding java code at all, because kotlin and java can coexist in the same project.
+
+you don´t have to convert everything to kotlin, so you can keep the java code forever and convert as you go or pick any strategy you like.
+
+
+
+
