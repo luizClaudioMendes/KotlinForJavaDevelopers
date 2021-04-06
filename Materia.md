@@ -237,4 +237,75 @@ java.lang.Strings transforms 'null' constant into a string 'null'.
 
 if you want an empty string instead of 'null', as in java, you have tod process that explicitly.
 
+### variables
+there are 2 main keywords to define variables in kotlin: **val** and **var**
+
+val comes from 'value' and denotes a **read only** or **assign-once** variable, while 
+
+var comes from 'variable' and denotes a **mutable** variable, the one that can be modified.
+
+read only variables can´t be reassigned. if you try to assign a new value to it you´ll get a compiler error.
+
+in essence, 'val' corresponds to a 'final' variable in java.
+
+#### omission of variable types
+in kotlin, you can omit the types of variables and the compiler will infer the types for you.
+ex.
+val greeting = "hi"
+val number = 8
+
+here we omitted the types of these 2 variables and they are inferred automatically by the compiler.
+
+kotlin is a statically-typed language, which means that every variable, every expression has a type. even if you omit the type, the compiler just infers it for you, but that doesn´t mean that this variable doesn´t have a type or it´s unknown. it means that the type specification is verbose, it´s clear from the context, and you trust the compiler to infer the type.
+
+YOU CAN´T CHANGE A VAR TYPE AFTER IT HAS BEEN DECLARED
+
+if you do this:
+var string = 1
+string = "abc"
+you´ll get a compiler error.
+
+for the compiler, the string variable is of type int, inferred by the value assigned to it.
+when trying to change its value to a string, the compiler doesn´t permit this change because the var string is of type int and not of type String.
+
+#### modify an object stored in val
+just as in java final variable, you can modify the object stored in a val.
+you can´t change the object to another one, but the properties of the object can be modified.
+
+ex:
+val person = Person(name = "name")
+person.name = "another name"
+
+it is a valid code.
+
+person = Person(name = "another object") 
+it is not a valid code.
+
+#### list and mutable list
+in kotlin, we have 2 types of list: a read only list and a mutable list
+
+you can´t modify a read only list. 
+
+read only lists doesn´t have the mutating methods
+
+ex of a read only list:
+val list = listOf("java")
+
+list doesn´t have the .add() method
+
+now an example of mutating list:
+val mutable = mutableListOf("java")
+mutable.add ("kotlin")
+
+it works, because the mutable list has the mutating methods
+
+#### best practices with variables
+by default, strive to declare all your new variables with 'val' keyword, nor 'var'.
+
+using immutable references, immutable objects and functions without side effects makes your code closer to the functional style, which is easier to understand and support in the end.
+
+when the type specifications are clear from the context, it´s safe to omit them.
+however, if any confusion could appear, it´s best just to have this type specification explicitly.
+
+
 
