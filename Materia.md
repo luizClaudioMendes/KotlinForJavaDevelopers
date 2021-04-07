@@ -394,5 +394,47 @@ package intro
 fun foo() = 0
 }
 
+### Named & default arguments
+println(listOf('a','b','c').joinToString(separator = "", prefix = "(", postfix = ")"))
+
+this will print (abc)
+
+the 'joinToString' function joins the contents of a string in the desired way. you can specify a separator, prefix and postfix.  the output should be quite straightfoward, it simply join the content of the list by using empty string as a separator, and surrounding it by the specified prefix and postfix.
+
+you can specify the names of the arguments directly in the code, just like we did it. that often makes the invocation more readable. it´s easier to understand what the arguments are supposed to do, specially for arguments of basic types such as Int, Boolean or String.
+named arguments are often used together with default arguments, like the joinToString, so that you can pass only what you need. say you only need to pass the postfix, and keep the rest default, you only pass that value, named as 'postfix', and the rest will be filled by default.
+
+#### how to declare a function with default values for arguments
+fun foo (a: String ="first argument", b: String = "second argument")
+
+just after the type of the argument you put '=' and the default value
+
+note that if you need to provide only the value for the second argument, then you have to use named arguments syntax.
+
+by default, there is the direct correspondence between unnamed arguments and parameters according to their order.
+
+just imagine this function:
+fun foo(number: Int = 0, string : String = "String")
+
+you can´t use it like this:
+foo("blabla", 3)
+
+this won´t compile, because the arguments doesn´t match the order they are declared.
+
+if you pass the arguments by name, you can change their order easily
+
+in java if you want to achieve the same behaviour, you will use the overload methods. to provide the functionality of default arguments, you will define several different overloads, and call one inside another by specifying default values. in kotlin you use the default arguments feature directly. you no longer need to provide several overloads.
+
+#### how to call a function with default arguments from java?
+when you call a kotlin function with default arguments from java, you have to specify the values for all the arguments.
+that happens to minimize the number of functions which are generated under the hood.
+
+by default, kotlin generates the function with all the arguments, and only one additional auxiliary function containing information about all the dafault values, which you can´t call from java.
+
+if you wanto to call the kotlin function with default arguments from java in a convenient way, then you can add '**@JvmOverloads**' annotation. after you annotate the function with default argument with @JvmOverloads, you can specify only some of the arguments when you call it from java.
+
+@JvmOverloads
+fun foo(number: Int = 0, string : String = "String")
+
 
 
