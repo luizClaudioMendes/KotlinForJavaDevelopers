@@ -307,5 +307,92 @@ using immutable references, immutable objects and functions without side effects
 when the type specifications are clear from the context, it´s safe to omit them.
 however, if any confusion could appear, it´s best just to have this type specification explicitly.
 
+### functions
+let´s use this example:
+fun max (a: Int, b: Int) : Int {
+	return if (a> b) a else b 
+}
+
+note that the parameter type specification is put after the parameter name like for variables. in a similar manner, function return type specification follows the argument list.
+
+#### function with expression body
+if your function simply returns one expression, you can use an alternative syntax. the expression that the function returns goes after the 'equals' sign. 
+
+the return type of the function comes rigth after the parameters and de ':' sign (fun max (a: Int, b: Int) : **Int**)
+
+it makes sense to specify types explicitly for public API, for library functions. but if it´s a regular applicaction, and you have a function, specially a private one, and it´s type is clear, for instance, from it´s name, you can safely omit it, like:
+fun max (a: Int, b: Int)
+
+note that if  you try to omit the type for a function **with expression body**, it will mean that this function return 'unit'.
+
+#### return Unit
+you can think of 'unit' as an analogue of 'void' in java. 
+
+ex:
+fun displayMax (a: Int, b: Int) {
+	println(max*a, b)
+}
+
+this function does not return anything, it´s written for its side effects, and ther compiler considers its return type as 'Unit'.
+
+you can explicitly put 'Unit' in the function return but no one does that.
+ex:
+fun displayMax (a: Int, b: Int): Unit {
+
+#### places where you can define functions in kotlin
+in kotlin you can define functions everywhere.
+
+ex:
+fun topLevel() = 1
+
+or
+
+class A {
+	fun member() = 2
+}
+
+or 
+
+fun other() {
+	fun local() = 3
+}
+
+so you can declare it as a top level, a member or a local function
+
+#### calling a top level function from java
+from java, you call a top level function as a static function. all top level functions under the hood are implemented as static functions.
+
+imagine this top level function:
+
+MyFile.kt
+package intro
+
+fun foo() = 0
+
+the top level function is define in the file called 'MyFile.kt'
+
+at the bytecode, the underlying static function belongs to a class named '**MyFileKt**'
+
+from java you can import a class by it´s name, or simply use 'import static'. in this last syntax gives you the same 'foo()' invocation as in kotlin.
+
+ex:
+package other
+import intro.MyFileKt;
+
+public class UsingFoo {
+	public static void main (String[] args) {
+		MyFileKt.foo();
+	}
+	
+#### changing the name of a class that contains top level functions
+if you want you can change the name of the class that contains all the top level functions as 'static' functions. for that you use a '**@JVMName**' annotation. you annotate the file contents and put the annotation right before the package name.
+
+@file:JVMName("Utill")
+MyFile.kt
+package intro
+
+fun foo() = 0
+}
+
 
 
