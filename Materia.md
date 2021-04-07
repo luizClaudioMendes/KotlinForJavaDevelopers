@@ -436,5 +436,90 @@ if you wanto to call the kotlin function with default arguments from java in a c
 @JvmOverloads
 fun foo(number: Int = 0, string : String = "String")
 
+### Conditionals: if & when
+#### if
+if is an expression in kotlin. that means if returns a value which you can assign to a variable.
+ex:
+val max = if (a > b) a else b
+
+in kotlin there is no ternary operator like in java. if you need the logic, you use if expression.
+
+#### when
+it migth be considered as an analogous of java switch.
+when you have enum class with some values, you can perform actions or return a specific expression depending on the enum constant. when then takes enum value as an argument and checks all the enum constants.
+in java , you have to use break or return if you want to stop operating inside the switch branch. otherwise, you´ll get the unexpected results. in kotlin you no longer need to use break to say that the operation should stop here. if the rank condition is satisfied, the result of their corresponding branch is returned.
+note that you have to specify the paths to the enum constants explicitly, unless you import them. by default, you say, color blue, color orange, etc.  but you can import enum constant, and in this case you no longer need the explicit class specification, using constants simply by it´s names.
+
+you can check whether when argument equal to one of the values:
+fun respondToInput(input: String) = when (input) {
+	"y", "yes" -> "i´m glad that you agree"
+	"n", "no" -> "sorry to hear that"
+	else -> "i don´t understand you"
+}
+
+you list several values separated by comma.
+
+you can use any expression, not only constatns as branch conditions:
+...
+when(setOf(c1, c2)) {
+	setOf(RED, YELLOW) -> ORANGE
+	setOf(YELLOW, BLUE) -> GREEN
+	else -> throw Exception()
+}
+here we created a set of two colors and compared with two predefined sets. when kotlin compares us by equality under the who did call set equals, which compares the content.
+we used sets here to ignore the order of the colors.
+
+somethimes you have to type a hierarchy, and neet to check whether it´s the sub-type or that sub-type and do actions accordingly.
+in kotlin, you can use when for this. it´s checks whether an argument is of a specific type.
+
+ex:
+when (pet) {
+	is Cat -> pet.meow()
+	is Dog -> pet.woof()
+}
+note that you don´t have to cast explicitly, the variable after you checked it´s type, it´s automatically **smart** cast to the rigth type.
+
+#### smart cast
+ex:
+if( pet instanceof Cat) {
+	((Cat) pet).meow()
+}else if (pet instanceof Dog){
+	Dog dog = (Dog) pet;
+	dog.woof()
+}
+
+in java you cast the variable to the type after checking instance of.
+in kotlin, you simply access its members as it was of the right type
+
+before kotlin 1.3 you had to do this:
+val pet = getMyFavouritePet()
+when (pet) {
+	is Cat -> pet.meow()
+	is Dog -> pet.woof()
+}
+now we have the opportunity to introduce a new variable for when subject direclty side of when expression. you often want to use thge whole expression as the when subject. however, the complicated expression can´t then be accessed as one variable inside when, and since there is no variable, nothing will be smart cast even if you check its type.
+ex:
+
+when (getMyFavouritePet()) {
+	is Cat -> pet.meow()
+	is Dog -> pet.woof()
+}
+this won´t work because you don´t have a pet variable
+
+you need to explicitly introduce a new variable name like pet:
+val pet = getMyFavouritePet()
+when (pet) {
+	is Cat -> pet.meow()
+	is Dog -> pet.woof()
+}
+the problem is that this pet variable continues to be accessible even after the when expression is over.
+
+now it is improoved and you can introduce a new variable name right inside the when parentesis by using val keyword:
+when (val pet = getMyFavouritePet() ) {
+	is Cat -> pet.meow()
+	is Dog -> pet.woof()
+}
+
+now it is contained only within when scope
 
 
