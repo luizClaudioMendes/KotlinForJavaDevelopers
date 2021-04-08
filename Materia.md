@@ -601,4 +601,71 @@ when iterating over a string, each character will be iterated, and it´s type wi
 
 in the example, it will print 'bcd' because at each step it will get the next char (ch + 1), so when ch = 'a' will print 'b'
 
+### 'in' checks & ranges
+now we will discuss ranges. ti´s a very convenient feature that has no direct analogous in java.
+
+#### in
+in is used for two different cases:
+the first one we already seen it in the previous topic about iterations:
+for ( i **in** 'a'..'z') {...}
+
+it is used for iteration
+
+in can also be used to check for belongin:
+c **in** 'a'..'z'
+
+##### in a range
+fun isLetter (c: Char) = c in 'a'..'z' || c in 'A'..'Z'
+
+isLetter('q') //true 
+isLetter('*') // false
+
+here we check whether a character is a lower case or upper case letter.
+by checking if it belongs to either the range of lowercase letters or the range of upper case letters.
+
+##### NOT in a range
+you can use not in, rechecks whether an element is not in the range
+fun isNotDigit (c: Char) = c **!in** '0'..'9'
+
+isNotDigit('x') // true
+
+##### in as a when condition
+you can use in as one condition like this:
+fun recognize (c: Char) = when (c) {
+	**in** '0'..'9' -> "it´s a digit"
+	**in** 'a'..'z', in 'A'..'Z' -> "it´s a letter"
+	else -> "don´t know"
+}
+
+#### different ranges
+you can create ranges of different elements. it´s clear what a range of integer numbers or a range of character means but what about the range of strings?
+
+1..9
+1 until 10
+'a'..'z'
+"ab".."az"
+startDate..endDate
+
+you can store a range in a variable of the corresponding range type, such range is a regular object.
+note that under the hood, the check for primitive types is optmized.
+
+val intRange: IntRange = 1..9
+val anotherIntRange: IntRange = 1 until 10
+val charRange: CharRange = 'a'..'z'
+val stringRange: ClosedRange<String> = "ab".."az"
+val dateRange: ClosedRange<MyDate> = startDate..endDate
+
+##### check if a string is in a set of strings
+"kotlin" **in** setOf("Java", "Scala")
+
+we can check if a string is present in a set of strings. in this case it is false.
+
+##### check if a string is within the alfabetical order of the range
+"kotlin" **in** "Java".."Scala"
+
+**in** check is combined to the code simply by checkin its bounds.
+like in java, strings are comparative lexicographically by default or in other words by the alphabetical order.
+
+so, using our example, k from kotlin is within the range created by J from java and S from Scala
+
 
