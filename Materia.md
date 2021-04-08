@@ -698,4 +698,40 @@ Implement the function that checks whether a string is a valid identifier. A val
         println(isValidIdentifier("no$"))    // false
     }
 
+### Exceptions
+in kotlin, exceptions are very similar to java with one important difference: kotlin doesn´t differentiate **checked** and **unchecked** exceptions.
+in kotlin you may or may not handle any exception, and your function does not need to specify which exception it can throw.
+
+the experience show us that in java rules for checked exceptions are often require you to write a logic meaningless code to withdraw or ignore exceptions and this rule doesn´t really help you to prevent possible errors.
+
+#### throw
+throw is an expression in kotlin. you can assign this result to a variable.
+
+val percentage = 
+	if( number in 0..100) {
+		number
+	}else {
+		throw IllegalArgumentException ("A percentage value should be between 0 and 100")
+	}
+
+in this case, if the number belongs to the range from 0-100, this number becomes the result of the expression, otherwise, we throw an exception. you can assign throw to a variable of any type which is very convenient, specially to use that in if or when branches.
+
+#### try
+try can catch an exception if it was thrown inside, check it for being of a certain type, and perform the corresponding actions.
+
+try is also an expression . that meas we can assign the result to a variable.
+
+#### checked and unchecked exceptions
+there are **no checked exceptions** in kotlin, so there is no need to specify that a functions throws an exception. however, we have the throws annotation (@Throws).
+we use this annotation to possibilitate the use of this function in a java class.
+if a functions throws an exception and you use it from a java class this annotation is mandatory to tell java that this function may throw an exception.
+
+ex:
+@Throws {IOException::class}
+fun bar() { 
+	throw IOException()
+}
+
+if you use this function in a java code without annotate it, it will not complie.
+
 
