@@ -522,4 +522,83 @@ when (val pet = getMyFavouritePet() ) {
 
 now it is contained only within when scope
 
+### Loops
+in kotlin we have the same basic loops as in java: for, while and do-while
+
+#### while and do-while loops
+while (condition) {
+	...
+}
+
+do {
+	...
+}while (condition)
+in kotlin we have the same while and do-while loops, just like java
+
+#### for loop
+val list = listOf("a", "b", "c")
+for (s in list) {
+	print(s)
+}
+
+for loop looks a bid diferent.
+first, a different keyword is used to express iteration over something - **in**.
+second, we can omit the element type but you can specify the element type explicitly:
+val list = listOf("a", "b", "c")
+for (s: String in list) {
+	print(s)
+}
+
+##### iterating over map
+val map = mapOf( 1 to "one",
+								2 to "two",
+								3 to "three")
+for ((key, value) in map) {
+	println("$key = $value")
+}
+
+another difference is that in kotlin you can iterate over the contents of a map. here we assign key and value separately at each iteration loop, then printed the result.
+
+this sintax works not only for maps, it can be used to iterate over a collection with index.
+
+##### iteration with index
+val list = listOf("a", "b", "c")
+for ((index, element) in list.withIndex()) {
+	println("$index: $element")
+}
+
+after we say **withIndex()" we can assign both index and element on each iteration turn.
+
+##### iterating over ranges
+for (i in 1..9) {
+	...
+}
+
+if you need to work with indexes directly, you can use ranges. there is no full form of loop as in java, you use over ranges instead.
+here we interate over range of numbers from 1 to 9.
+
+you can also buit over range using until function. 
+for (i in 1 until 9) {
+	...
+}
+
+note that using until, the last number will be excluded, (like i < 9)
+using 1..9 includes the last number (like i <= 9)
+
+##### iterating with a step
+for (i in 9 downTo 1 step 2) {
+	print(i)
+}
+if you want you can build more complicated rangers like iterating back first or over a step.
+using step will step over the number inserted, like in the example, when i = 2 it will not do anything and jump to i = 1
+
+##### iterating over a string
+for (ch in "abc") {
+	print(ch + 1)
+}
+
+when iterating over a string, each character will be iterated, and it´s type will be char.
+
+in the example, it will print 'bcd' because at each step it will get the next char (ch + 1), so when ch = 'a' will print 'b'
+
 
