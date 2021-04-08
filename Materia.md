@@ -669,3 +669,33 @@ like in java, strings are comparative lexicographically by default or in other w
 so, using our example, k from kotlin is within the range created by J from java and S from Scala
 
 
+### exercise
+#### Checking identifier
+Implement the function that checks whether a string is a valid identifier. A valid identifier is a non-empty string that starts with a letter or underscore and consists of only letters, digits and underscores.
+
+    fun isValidIdentifier(s: String): Boolean {
+        if(s == "") return false
+        
+        var counter = 0
+        for (str in s) {
+            if(counter == 0) {
+                if (str !in 'a'..'z' && str !in setOf('_')) return false
+            }else {
+                if (str !in 'a'..'z' && str !in setOf('_') && str !in '0'..'9') return false
+            }
+            counter = counter + 1
+        }
+        
+        return true
+    }
+    
+    fun main(args: Array<String>) {
+        println(isValidIdentifier("name"))   // true
+        println(isValidIdentifier("_name"))  // true
+        println(isValidIdentifier("_12"))    // true
+        println(isValidIdentifier(""))       // false
+        println(isValidIdentifier("012"))    // false
+        println(isValidIdentifier("no$"))    // false
+    }
+
+
