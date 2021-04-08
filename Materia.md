@@ -734,4 +734,79 @@ fun bar() {
 
 if you use this function in a java code without annotate it, it will not complie.
 
+### Extension Functions
+what are extension functions? why are they so important?
+
+**Extensions functions extends the class, giving them more methods that suits our needs**
+
+it is defined outside of the class but they can be called as a regular member to this class.
+
+ex:
+fun String.lastChar() = this.get(this.length - 1)
+
+here we define an extension function to string called lastChar and we can use it as a member function.
+
+it´s visible in code completion, so it can be easily discovered. it´s like a regular utility function define outside of the class. but on the other hand, thanks to code completion, it can be easily found and used like it was a member.
+
+#### how we define an extension function
+the time that the functions extends is called a Receiver.
+
+ex:
+fun String.lastChar() = this.get(this.length - 1)
+
+here, String is the receiver of the lastChar function. in the body of this function, we can access the receiver by **this** reference. in this exemple, **this** refers to String. as usual for this reference we can omit it.
+
+ex:
+fun String.lastChar() = get(length - 1)
+
+we can call members of the receiver inside an extension function withou explicit **this.** something specification.
+
+an important thing to notice is that you can´t define an extension and use it everywhere. **you have to import it explicitly**.
+
+if you define an extension functions lastChar somewhere and need to use it, you´ll need to import it either as one function, or inside the whole contents of the package.
+
+by default, an extension functions is not accessible in the whole project. it´s visible in code completion but to use it you have to put the explicit input.
+
+#### how to call an extension function from java?
+when you call a top-level function from java, it´s simply a static function. for extension it works in the same way.
+
+ex:
+StringExtensions.kt
+	fun String.lastChar() = get(length - 1)
+	
+JavaClass.java
+	import static StringExtensionsKt.lastChar;
+	char c = lastChar("abc");
+	
+	
+when you interate in the parameter passed, like we did in the lastChar(), the parameter when you call it from java is just this one.
+
+but let´s say you want to repeat a string some n times.
+in kotlin the extension functions it´s just like this:
+fun String.repeat (n: Int) : String {
+	val sb = StringBuilder (n + length) // length of the string you want to repeat
+	for (i in 1..n) {
+		sb.append(this) //this is the string you want to repeat
+	}
+	return sb.toString()
+}
+
+and in kotlin you´ll use it like this:
+"abc".repeat(3)
+
+and the result will be : ababab
+
+from java you have to pass also the object that in kotlin will be omited, like in this case, the string:
+
+StringUtilsKt.repeat("ab", 3)
+
+when you call these extensions functions from java, you pass String expression explicitly as the **first argument**
+
+##### is it possible to call a private member from a class using extensions?
+no, it´s not possible.
+as in java, it´sonly possible to call a private member inside the same class.
+
+kotlin extensions functions are most of the time top-level functions defined in a special extra file which content is compile to the corresponding extra class. therefore, it´s not possible to call a private member of a class from an extension to this class.
+
+**Extensions functions doesn´t give you any additional access rights to the class contents.**
 
