@@ -810,3 +810,91 @@ kotlin extensions functions are most of the time top-level functions defined in 
 
 **Extensions functions doesn´t give you any additional access rights to the class contents.**
 
+### Examples from the Standard Library
+now let´s take a more deeper look in the extensions library.
+Extensions play an important role in the language. 
+kotlin standard library is just java standard library and a bunch of extensions that provides very smooth interoperability between java code and kotlin code. 
+
+in kotlin, java standard collection classes from java.util package are used under the hood. when you create a collection using the functions from the kotlin standard library, instances of java standard classes are created.
+
+** kotlin library simply provides extensions for regular java collections.
+
+there is no suvh thing as kotlin SDK. it´s just java library with extensions. that givers us a couple of important benefits. at first, the size of the runtime jar that you have to add to your application when it starts using kotlin is relatively small. the kotlin doesn´t duplicate the standard implementations from java. it tries to reuse them.
+if your application doesn´t use some of these extensions, they can be eliminated so that the added jar can get even smaller. 
+
+the second important benefit is that using standard java collections provides very easy interoperability with java. you don´t have to convert one collection type to another, they are the same types under the hood. if you call java API from kotlin or vice versa, that´s very easy.
+
+#### joinToString
+the joinToString function allows you to get a nice string representation of a collection. in java, the square brackets are added by default, which is not always what you need. joinToString allows you to change the default behaviour by specifying the values for some of the algorithms.
+
+it´s a regular extension function from the kotlin library
+
+#### getOrNull
+under the hood, kotlin array is the same as in java, but java array lacks this getOrNull method.
+that´s also a extension in kotlin.
+
+the similar function is available for list. it returns either an element of null if your index is wrong and the list contains fewer elements.
+
+#### withindex()
+the withIndex functions is also an extension. the important thing is that the withIndex is a function that is also provided as an extension.
+
+having extensions in a language allows us to the new, nice syntatic features for standard java types. extensions are very powerfull.
+
+#### until
+until is also an extension. the until functions is defined as **infix**. 
+
+infix fun Int.until(to: Int): IntRange
+
+so this allow us to call it in a regular way, like this:
+1.until(10)
+
+or you can call it in an infix form by omitting dot and parenthesis.
+1 until 10
+
+until looks like a built-in syntax, but it´s not. it´s just an extension functions called in an infix form.
+
+#### to
+another function that are also an infix extension is the **to** function.
+to in kotlin simply returns a pair of values. agaim you can use it in a regular form, but no one does that. everybody uses the nice infix form
+
+#### char extensions
+there are many useful extension functions on Char, like isLetter or isDigit.
+you can look at what is available in the library using the completion list or just browsing the library
+
+#### String extensions
+kotlin String is like Java String with extensions
+
+##### triple quoted strings literals
+triple quoted string literals is another interesting feature in kotlin.
+an alternative way to call them is the **multiline** strings. you can´t use any special characters there, but you can use strings templates to place inside them.
+
+val q = """to code,
+		or not to code?.."""
+
+if you try to form a triple-quoted strins in your code, you´ll probably wanto to add the indent. by default, this indent **becomes part of the string**. there are some ways to crop this indent, and one of these ways is using the function **trimMargin()**. here the default margin is used, but you can specify another margin prefix if needed. the marginPrefix is automatically cut out together with indent.
+
+val q = """to code,
+		#or not to code?..""".trimMargin(marginPrefix = "#")
+
+you can call the **trimIndent**() function directly, like the last example. if there is the same ident for all the lines in your string, it will be automatically removed.
+
+both trimIndent and trimMargin functions are defined as extensions.
+
+another useful extension is the **toRegex** function. you can convert a string to the regex clause to present in regular expressions. after that, you can call, for instance, matches method on this regular expression clause. 
+
+val regex = "\\d{2}.\\d{2}\\.d{4}".toRegex()
+regex.matches("15.02.2016) // true
+regex.matches("15.02.16") // false
+
+note that for regular expressions, it´s very convenient to use triple-quoted strings, so you don´t need to skip special characters there, including the backslash. the regular expression often becomes shorter.
+
+val regex = """\d{2}.\d{2}\.d{4}""".toRegex()
+
+#### conversion to number extensions
+**toInt** and **toDouble** extensions functions will try to convert string representations to Int and Double accordingly. Note, however, that if you try to convert somthing that doesn´t make sense to an Integer, you´ll get NumberFormatException.
+
+but ther is another extension available, toIntOrNull, which returns null if the string cannot be converted to an integer.
+
+#### eq extension
+the **eq** extension allow us test what is going on. it´s defined as a very simple extension function which checks whether the receiver equals its arguments. it prints OK if they are equal or prints an error if they´re not.
+
