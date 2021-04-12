@@ -992,3 +992,25 @@ if you try to define extensions with the same signature as a member, then you ge
 
 #### overload a member in extensions
 if you define a extension with a different signature, different parameter types or the different number of parameters, your new function will be called if it fits better
+
+### Importance of extensions
+extensions are often named among the most important or lovable features of kotlin. why are they so important?
+
+extensions have proven to be one of the most useful abstractions features of kotlin.
+
+i think their main purpose is to keep your classes and interfaces API´s minimal. 
+
+this is really important because this keeps the abstractions or things you´d try to describe to module with your class interfaces understandable. so, it´s important to capture the essence of the abstraction with this small set of members that covers the essential functionality.
+
+all the auxilliary functions, all the utilities convenience methods can be written as extensions calling to this public API.
+
+so, this the main principle. 
+
+as an example, you can take the string class from the kotlin library. so, what´s a string? essentially, it´s a collection of characters that can be indexed. so string has only a handful of methods like take a length, take a character by index, and so forth and everything else like the huge number of utility methods available on the string, like everythiung about regular expressions, matching, splitting, so on and so forth, converting to uppercase, lowercase, and many more are all extensions.
+so you can see what a string is, and then express everything else through it API. doesn´t mean principle and i think we should develop all our abstractions this way. so, when you have this division like members for instrinsic things and extensions for everything else, it makes sense to put them closer to each other so that it´s easy to discover extensions in the code.
+
+so when you use extensions for your own classes, define them close to the class itself if they are general-purpose.
+
+of course, if you have something specific to a sub-domain in your application, like in a different module, you have something specific to add to this class then keep that extension there in the module where it belongs to, but still group extensions to the same class together.
+
+another important situation to use extensions is when you don´t control some class or interface because it sits in the library or it´s in another module or something like this, but you still want to extend its API somehow. so, through this, you can even extend the API of existing java libraries. so, even if something has no knowledge, no awereness of kotlin at all, you can turn it into a kotlin-like ergonomic idiomatic API through simply adding a couple of extensions. that´s proven to be a very useful thing. 
