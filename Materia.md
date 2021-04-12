@@ -929,3 +929,66 @@ fun main(args: Array<String>) {
     val sum = listOf(1, 2, 3).sum()
     println(sum)    // 6
 }
+
+### Calling Extensions
+in this chapter, we will see how extensions interact with inheritance and whether extensions can hide members.
+
+#### inheritance
+let´s say we have two classes, Parent and Child.
+we can define two similar extensions functions. the first one to parent and the second one to child. we create a instance of child and store it in a reference of the parent type. which foo function will be called in this case?
+
+openc class Parent
+class Child : Parent{}
+
+fun Parent.foo() = "parent"
+fun Child.foo() = "child"
+
+fun main(args: Array<String>) {
+	val parent: Parent = Child()
+	println(parent.foo())
+}
+
+an important thing to keep in mind is that extensions under the hood are regular java static  functions.
+
+so, "parent" is printed here. 
+
+**the resolution of which functions should be called here works in similar manner as for java static function**
+
+Under the hood, these extension functions are compiled to java static functions, so 2 static methods are created:
+
+public static String foo(Parent parent) { return "parent"}
+public static String foo(Child child) { return "child"}
+
+java resolves static functions statically. it finds the right function to be called during compilation. it only uses the type of the argument to choose the right function, thus the parent functions is chosen here since the parent variable has the parent type.
+
+in general case, we don´t know what is stored in the parent variable. it can be an instance of child, parent or other class that extends parent. 
+
+the actual stored object at runtime doesn´t change anything because the function to be called is already chosen during compilation. 
+
+in kotlin, it works the same way as for static functions.
+
+as mentioned, extensions are static functions under the hood, so **there is no override for extensions**.
+
+when the compiler chooses the rigth function to be called, it only uses the type of the receiver expression, not the actual stored value.
+
+#### what happens if we try to define an extension which duplicates a member of a class?
+
+for instance, the string class has a member function 'get', which simply returns a character by it´s index.
+
+we tried to define an extension with the same signature:
+fun String.get(index: Int) = "*"
+
+fun main (args: Array<String>) {
+	println("abc".get(1))
+}
+
+it will print 'b'
+
+**MEMBER ALWAYS HAS THE PREFERENCE OVER EXTENSIONS**
+
+the indexation of string release contents starts with zero as in java. so in this case, the character returned by the first index is 'b'.
+
+if you try to define extensions with the same signature as a member, then you get a warning that as extension is shadowed, so the member will always be used.
+
+#### overload a member in extensions
+if you define a extension with a different signature, different parameter types or the different number of parameters, your new function will be called if it fits better
