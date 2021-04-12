@@ -898,3 +898,34 @@ but ther is another extension available, toIntOrNull, which returns null if the 
 #### eq extension
 the **eq** extension allow us test what is going on. it´s defined as a very simple extension function which checks whether the receiver equals its arguments. it prints OK if they are equal or prints an error if they´re not.
 
+### Exercise
+#### Sum as an extension function
+Change the 'sum' function so that it was declared as an extension to List<Int>.
+
+Question:
+fun sum(list: List<Int>): Int {
+    var result = 0
+    for (i in list) {
+        result += i
+    }
+    return result
+}
+
+fun main(args: Array<String>) {
+    val sum = sum(listOf(1, 2, 3))
+    println(sum)    // 6
+}
+
+Answer:
+fun List<Int>.sum(): Int {
+    var result = 0
+    for (i in this) {
+        result += i
+    }
+    return result
+}
+
+fun main(args: Array<String>) {
+    val sum = listOf(1, 2, 3).sum()
+    println(sum)    // 6
+}
