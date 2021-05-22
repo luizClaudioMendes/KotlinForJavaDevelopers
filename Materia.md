@@ -1812,6 +1812,50 @@ answer:
     //OK
 	
 
+### Safe casts
+
+type cast: as
+    
+    if(any is String) {
+    	val s = any as String
+    	s.toUpperCase()
+    }
+
+In Java, you use a common pattern to do something with the variable only if it is of specific type. 
+
+First, you use instanceof (or in the example above, 'is') to check whether the variable is of the required type, then you cast it to this type(as in above, any 'as' String) of restoring the result in a new variable (val s). 
+Eventually, you call members of this type on this new variable. 
+
+In Kotlin, you can do absolutely the same. 
+
+'Is' is the analog of 'instanceof' and s is the typecast. 
+
+However, the explicit cast s is not really needed. 
+
+**You can simply use the initial variable afterward, because it's smart cast to the right type.** 
+ex:
+if (any is String) {
+	any.toUpperCase()
+}
+
+In this case, you can** call String members on the any variable directly**. 
+
+This example can be further improved. **You can replace type cast with a safe cast**. 
+
+ex:
+    
+    (any as? String)?.toUpperCase()
+
+#### Type Casts
+**Type cast as, throws an exception if the expression can't be cast**, while** safe cast as question mark returns null in this case**. 
+
+#### Safe Casts
+**The safe cast returns either the smart cast value or null as the result.** 
+
+If the value can be cast to the required type, then it is returned.
+
+Another way to express the same logic is to use if expression explicitly returning either the same expression or null. 
+
 
 
 
