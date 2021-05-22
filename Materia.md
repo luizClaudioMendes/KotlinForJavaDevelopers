@@ -1673,6 +1673,112 @@ it´s like we have it like this:
 **If you are not sure about the right amount of precedence and to make the code more readable, prefer the parentheses in all such confusing use cases.** 
 
 
+### Nullable types under the hood
+
+Under the hood, nullable types are implemented using annotations.
+@Nullable, @NotNull annotations
+
+The Kotlin compilers simply adds **Nullable** and **NotNullable** annotations to the corresponding types usages. **Which gives us no performance overheads when using Nullable types**. 
+
+There is another solution to the same Nullability problem which is called **Optional** or Option types. 
+
+#### Optional objects
+They are** special library classes that store value or absence of of the value and you can check whether the value is available or not**. 
+
+That solves the same problem as nullable types because optional allow you to say explicitly whether the variable can have no value option similar to null or not. 
+
+Despite nullable types and optional solve the same problem, **they are very different in terms of the performance**. 
+
+**Optional** type is a **wrapper that stores the reference to the initial object**. 
+
+For each optional value an **extra object is created**. 
+
+At the same time, **nullable** types **don't create any wrappers**. 
+
+They are implemented by annotations.
+
+To make sure understand it answer these questions. 
+
+**How many objects are created to store the value of a nullable string?** 
+
+The answers options are either** two objects** or **only one**. 
+
+*Only one object is created to store string value, there is no additional wrapper as with optionals.* 
+
+When you use nullable types under the hood, the Kotlin compiler adds additional annotations which are only checked at the compilation time. 
+    
+    fun foo(): String = "foo"
+
+is unde the hood
+    
+    @NotNull
+    public static final String foo() {
+    	return "foo";
+    }
+
+and 
+    
+    fun bar(): String? = "bar"
+
+is under the hood
+    
+    @Nullable
+    public static final String bar () {
+    	return "bar";
+    }
+
+
+**At run time, nullable string is the same string as our Java string. **
+
+Both types, string and nullable string corresponds to Java string type in Java, but with different annotations. A run time is one string, there is no wrap. 
+All the checks going on at the compilation time with the help of annotations. 
+
+That's the end of the first story. 
+
+Now the story not about annotations but about nullability and generics. 
+
+in case a, List<Int?> means that the list is created and never null. the content of the list is what changes. it can be Int or null.
+
+so accessing list a, the values can be an integer or null.
+
+now case b, List<Int>?, that means that the list can be null (never created) but since it was created, the values inside can only be integers and never null
+
+with this in mind, you can see the difference between **a list of nullable elements and a nullable list**. 
+
+When you use a list of ints, you can put the question mark after int, or after list itself, or in both places. 
+
+The first one means that every element might be either null or not null. 
+
+And the second one means the whole list might be either null or not null.
+
+
+To better understand that mark the lines that need a question mark to make the code compile. Of course, you can add a question mark to each line to make every access save and to make every int nullable int, but that's not the question. **The question is which are the minimum amount of questions marks to make this compile**. Add only the question that are really needed.
+    
+      fun foo(list1: List<Int?>, list2: List<Int>?) { 
+    #1  list1.size
+    #2  list2.size
+    
+    #3  val i: Int = 
+    #4    list1.get(0)
+    #5  val j: Int = 
+    #6    list2.get(0)
+      }
+
+answer:
+    
+    #2, #3, #5, #6
+
+
+Let's do the cases one by one, 
+* the first list is the list of nullable values, we can reference it without a problem because it's a not null reference. But when we try to assign the first element into a variable, we see an error. The inferred type is nullable int, but int was expected. The content of the list was nullable ints and the type of the first element nullable int. That means that we need to add a question mark to the type of the i variable. That's all for the first choice.
+
+* For the second case, it's a little bit more complicated. We have a nullable list and that means that both accesses won't compile. We need here safe access, we can add a couple of question marks to fix that. And now here's the tricky place because we've added a question mark that makes line 6 uncompiled. We have the type mismatch, infer type is nullable int, but regular intervals expected. That makes us add another question mark to line 5.
+
+
+So the answer is lies, 2,3, 5, and 6.
+
+
+
 
 
 
