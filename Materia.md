@@ -1389,5 +1389,296 @@ so let´s now covert it to an extension:
 At first, row function is defined as an extension, **so our list became the receiver**. Now, we access this list by** this** reference inside the function body, and also** the way how we call the function changed because now we call it as an extension.** It looks like it was a member.
 
 
+### Nullable types
+The problem of nullability is sometimes referred as billion dollar mistake. That's how Sir Tony Hoare the inventor of null reference later called his invention. 
+
+The problem is that these null point exceptions problems **are really hard to fix** and even if you go for details, you often can see just this message: **"sorry null point exception was thrown"**. But where and why? 
+
+The current approach, the **modern approach** which is not unique to cutling is to **convert these exceptions, from run-time exceptions to compile time errors**, to make it a compile time problems, **so that we could prevent these exceptions when we write the code and compile it rather than later in production**. Kotlin distinguishes nullable types and non-nullable types. 
+
+#### nullable type in kotlin
+ Kotlin distinguishes nullable types and non-nullable types. 
+ 
+ If you use a regular type like string, you can **only store non-nullable objects there**, you can't store null references. 
+ 
+** If you try to initialize a variable of a non-nullable type with null, the Kotlin compiler will complain**. 
+
+If you want to **store null, you need to declare a variable of a nullable type**. 
+
+To make a type nullable add a question mark **(?)** at end of his name.
+
+ex:
+
+    val s1 : String = "always not null"
+    val s2: String? = null
+    
+In this example, after adding a question mark to string, you can store either **null or non-null** string value there.
+
+now let´s see another example:
+
+s1.length
+
+if you try to dereference a variable of a non-nullable type namely access its members or call extensions everything is fine, just like we use s1, that will never be null.
+
+The Kotlin compiler doesn't complain because it's sure that the exact value is not null. 
+
+s2.length
+
+However, if you try to dereference a variable of a **nullable type, the Kotlin compiler says it's not possible**. 
+
+The value of the nullable type can be null under the hood, and such dereference operation will then **throw null pointer exception**.
+
+#### What can you do if you want to dereference an object of a Nullable Type? 
+The easiest way is to check explicitly that your reference is not Null. After such a check, you can simply dereference the variable and access its members. 
+ex:
+
+val s: String?
+
+    if (s != null) {
+    	s.length
+    }
+
+this will work fine, because it will only access the property length if the string value is not null
+
+However, IDE, you will suggest you have a **better way to express the same logic**. You can replace the if expression with a safe access expression, just like this:
+    
+    s?.length
+    
+
+Safe access, or in other words, a safe call, consists of two characters: 
+
+* The question mark and the dot (**?.**). 
+
+It allows you to dereference a value in a safe manner. 
+
+**This operator first checks whether the receiver is not null. If it is the case, then the safe access operator calls the required member and returns the result. If the receiver is null, then null becomes the result.**
+
+When you use the result of a safe call like return it or assign it to a variable, that is the same as using the following explicit if expression.
+
+what will be the type of the length value in this code?
+    
+    val s: String?
+    val length: Int? = if(s != null) s.length else null
+    
+    val length: Int? = s?.length
+
+There answer is nullable Int. 
+
+The length property of String returns to you a variable of Int type.
+
+But when you use safe access, that makes the results nullable. 
+
+If a variable stores its value now, length will also be null, Because null might be stored only in variables of nullable types, the result type is nullable Int.
+
+If you want to make the type of lengths **not nullable,** you need to provide the **default value for the case when s is null**. 
+
+    val s: String?
+    val length: Int = if(s != null) s.length else 0
+    
+    val length: Int = s?.length ?: 0
+
+When using** if expression**, you can simply say else 0. 
+
+When using **safe access**, you can use so called **Elvis operator** and provide the default value that will be used when your expression is null. 
+
+#### Elvis operator
+ elvis operator is something like this:
+ val a = b ?: c
+ 
+ it will assign to a the value of b if it isn´t null. it it is null, it will assign the value of c.
+ 
+
+
+the next question is, what will be printed here?
+
+    val a: Int? = null 
+    val b: Int? = 1 
+    val c: Int = 2
+    
+    val s1 = (a ?: 0) + c 
+    val s2 = (b ?: 0) + c 
+    print("$s1$s2")
+
+ In the s1, we sum up 0 and 2, having 2 as a result. 
+  val s1 = (a ?: 0) + c  //2
+ 
+ In the s2, because b is not null, we sum up 1 and 2, having 3 as the result. 
+  val s2 = (b ?: 0) + c  // 3
+  
+ So the answer to what will be printed is 23. 
+  print("$s1$s2") // 23
+ 
+ Let's now go back to our discussion of how we can work with expressions of Nullable types.
+     
+     val s: String?
+     if(s == null) fail() // or use return instead of fail
+	 s.lenght
+ 
+ the Kotlin compiler supposed to the control flow analysis. If you explicitly check that the reference is null and co-fail function which throws an exception or simply return, then afterward you can accessed without safe access. 
+     
+     s.lenght
+ 
+ The compiler knows that s verbal is smart cost to a null nullable type. 
+ 
+ #### how to throw the null pointer exception in kotlin?
+ If you want you can explicitly throw called the null pointer exception. 
+ 
+ For this, you use this not null assertion (**!!**) , an operator consisting of two exclamation marks. 
+ 
+ It throws a null pointer exception if it's operand is null and returns the operand if it's not null. 
+ 
+ Note that after a not-null assertion, the value smart cost to a non-nullable type. And you can dereference it safely without the need to repeat this assertion. 
+ 
+     s.length
+ 
+ what happens is that the compiler already know that if it wasn´t throw a null pointer exception when we used **!!** it´s beacause the value is not null, so there is no need to check it again.
+ 
+ ##### WARNING
+** It's worth to warn against not-null assertion operator. By default, try to avoid it.** 
+
+We have it in the language,** especially for other use cases where the Kotlin compiler isn't smart enough to infer the right time.**
+
+There are situations when you have an assumption that the expression is not null but the kotlin compiler cannot infer that for you. And you would rather prefer an exception if for some reasons the assumption is not correct. 
+
+The logic of assumption must then be localized so that it was hard to break it, or it can depend on external frameworks. 
+
+    class MyAction {
+    	fun isEnabled() : Boolean =
+    		list.selectdValue != null
+    		
+    	fun action performed() {
+    		val value = list.selectedValue!!
+    		//..
+    	}
+    }
+    
+    if (action.isEnabled()) {
+    	action.actionPerformed()
+    }
+
+In this example, the actionPerformed function is called only if the isEnabled function returns true. And we can safely use not-null assertion because the condition is checked is in another place. 
+
+#### BAD USE OF NOT NULL ASSERTION
+
+    person.company!!.address!!.contry
+
+With not-null assertion operator, you explicitly emphasize where null pointer exception can be thrown. 
+
+And if it's thrown, you can see directly what might be the cause. 
+
+That means **it doesn't make sense to put two or more not-null assertion operators in one line**. 
+
+As you won't to be able to say which one cause the exception. 
+
+In general prefer using safe operators. Safe access. Elvis separator or explicit checks to cope with nullability. 
+
+Use not null assertion only with care.
+
+------------------------
+now, lets see some more errors using null and not null
+
+    #1 fun isFoo1(n: Name) = n.value == "foo"
+    #2 fun isFoo2(n: Name?) = n.value == "foo"
+    #3 fun isFoo3(n: Name?) = n != null && n.value == "foo"
+    #4 fun isFoo4(n: Name?) = n?.value == "foo"
+    
+       fun main(args: Array<String>) { 
+    #5   isFoo1(null)
+    #6   isFoo2(null) 
+    #7   isFoo3(null) 
+    #8   isFoo4(null)
+       }
+
+
+The question for you to get used to nullable types is** which lines won't compile?** 
+**Which lines will produce compiler errors?** 
+
+Let's do it one by one. 
+    
+     #1 fun isFoo1(n: Name) = n.value == "foo"
+     #5   isFoo1(null)
+  
+  The first function takes the parameter of non-nullable type. 
+  The function is fine. But **the problem is that we can't pass null whenever a non-nullable type is expected.** 
+  The compiler error tells us that null cannot be a value of a non-nullable type name here : "   *#5   isFoo1(**null**)*"
+  If passing null to non-nullable parameter was allowed then we would have null point exception on the reference. The coding compiler doesn't allow that.
+      
+    #2 fun isFoo2(n: Name?) = n.value == "foo"
+    #6   isFoo2(null) 
+	 
+'
+
+Let's now take a look at the second function, which takes the parameter type null. 
+Now, the implication is fine. It compiles. 
+
+However, there is **an error in the function body**. 
+
+Only safe calls or non-null asserted calls are allowed. You can't access expressions of nullable types without additional checks. 
+it should be this way:
+
+     #2 fun isFoo2(n: Name?) = n?.value == "foo"
+
+So the line number two doesn't compile unless we use a null check
+	 
+    	 
+    #3 fun isFoo3(n: Name?) = n != null && n.value == "foo"
+    #7   isFoo3(null) 
+
+The third function fixes this problem and this one is fine. We check explicitly that name is not null and then use smart cost value. 
+
+    
+    #4 fun isFoo4(n: Name?) = n?.value == "foo"
+    #8   isFoo4(null)
+
+The fourth function also compiles because we use safe access to get the value and then we compare it to the string, everything is fine thus the right answer is lines two and five don't compile.
+
+--------------------------
+
+Another question for you. This one is not trivial. Such code might be confusing and sometimes called a puzzler. What will be printed here?
+
+val x: Int? = 1
+val y: Int = 2
+val sum = x ?: 0 + y
+println(sum)
+
+
+The answers are rather unexpected, keep that in mind. 
+The possible options are **one, two or three.** 
+
+The right answer is **one**. 
+
+*Operator precedence plays an important role here*. 
+    
+    val sum = x ?: 0 + y
+
+some operators take higher precedence than others 
+
+
+
+If you need the parentheses, some operators take higher precedence than the other operators. 
+
+That means that by default, the parenthesis surround plus, not Elvis operator.
+
+so, as it is now, it works this way: 
+0 + y and then it checks the elvis operator.
+it´s like we have it like this:
+    
+        val sum = x ?: (0 + y)
+
+**If you want to call Elvis separator first, then you put the parentheses explicitly. **
+    
+    val sum = (x ?: 0) + y
+
+
+**If you are not sure about the right amount of precedence and to make the code more readable, prefer the parentheses in all such confusing use cases.** 
+
+
+
+
+
+
+
+
+
 		
 
