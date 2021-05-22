@@ -1858,6 +1858,23 @@ Another way to express the same logic is to use if expression explicitly returni
 
 
 
+### exercise Safe casts
+Type cast as throws ClassCastException, if the cast is unsuccessful. Safe cast as? returns null, if the cast is unsuccessful. Declare the s variable to make the first line print null and the second one throw an exception.
+    
+    fun main(args: Array<String>) {
+        val s = 1.0
+        println(s as? Int)    // null
+        println(s as Int?)    // exception
+    }
+    
+
+result:
+*null
+Exception in thread "main" java.lang.ClassCastException: java.lang.Double cannot be cast to java.lang.Integer
+ at FileKt.main (File.kt:4) 
+ at sun.reflect.NativeMethodAccessorImpl.invoke0 (NativeMethodAccessorImpl.java:-2) 
+ at sun.reflect.NativeMethodAccessorImpl.invoke (NativeMethodAccessorImpl.java:62) *
+ 
 
 
 
