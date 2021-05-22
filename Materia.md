@@ -1346,6 +1346,48 @@ so this is our main fuctions with our expected results:
         	}
         	return true
         }
-		
+	
+### Solution: Sum as an extension function
+
+in this task we will convert a function to a extension. it´s too easy in intelij IDE but you can also do it by hand:
+
+here we have a function that returns the sum of a list of integers,
+ex. if you pass (1,1,1) it will return 3
+
+    fun sum (list: List<Int>) : Int {
+    	var result = 0
+    	for (i in list) {
+    		result += i
+    	}
+    	return result
+    }
+    
+    fun main (args: Array<String>) {
+    	val sum = sum(listOf(1,2,3))
+    	println( sum) //6
+    }
+	
+
+very straightfoward
+
+so let´s now covert it to an extension:
+    
+      fun** List<Int>.sum()** : Int {
+        	var result = 0
+        	for (i in **this**) {
+        		result += i
+        	}
+        	return result
+        }
+        
+        fun main (args: Array<String>) {
+        	val sum = **listOf(1,2,3).sum()**
+        	println( sum) //6
+        }
+	
+
+At first, row function is defined as an extension, **so our list became the receiver**. Now, we access this list by** this** reference inside the function body, and also** the way how we call the function changed because now we call it as an extension.** It looks like it was a member.
+
+
 		
 
