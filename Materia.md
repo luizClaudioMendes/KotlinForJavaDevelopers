@@ -1185,3 +1185,110 @@ fun generateSecret(differentLetters: Boolean): String {
         }
     }
 }
+
+### Mastermind in a functional style
+even though we can skip this resolution for now, because we haven´t had working functional style before, here is the complete implementation of 'evaluateGuess()' function in a functional style. we can compare our solution with the solution in functional style:
+
+how we implemented it:
+    fun evaluateGuess(secret: String, guess: String): Evaluation {
+    
+        val resultIndexList = mutableListOf<ResultIndex>()
+        var index = 0
+    
+        var wrongSecret : String = ""
+        var wrongGuess : String = ""
+        while (index < 4) {
+            if(secret[index] == guess[index]) {
+                resultIndexList.add(ResultIndex(
+                        position = index,
+                        letter = guess[index],
+                        isCorrect = true,
+                        secretContains = true))
+            } else {
+                resultIndexList.add(ResultIndex(
+                        position = index,
+                        letter = guess[index],
+                        isCorrect = false))
+                wrongSecret += secret[index]
+                wrongGuess += guess[index]
+            }
+            index += 1
+        }
+    
+        var wrongPosition = 0
+        var wrongGuessDoubleList = mutableListOf<Char>()
+    
+        for (wg in wrongGuess) {
+            if(wrongSecret.contains(wg) && wrongSecret.contains(""+wg+wg)) {
+                wrongPosition += 1
+            }else if(wrongSecret.contains(wg) && wrongGuess.contains(""+wg+wg)) {
+                wrongGuessDoubleList.add(wg)
+            }else if(wrongSecret.contains(wg)){
+                wrongPosition += 1
+            }
+        }
+    
+        for (dg in wrongGuessDoubleList.toSet()){
+            wrongPosition += 1
+        }
+    
+    
+        val rightPosition = resultIndexList.filter { f -> f.isCorrect }.size
+        return Evaluation(rightPosition, wrongPosition)
+    }
+    
+	
+	
+how we could implemented it using fucntional style:
+    data class Evaluation(val rightPosition: Int, val wrongPosition: Int)
+    
+    fun evaluateGuess(secret: String, guess: String): Evaluation {
+    
+        val rightPositions = secret.zip(guess).count { TODO() }
+    
+        val commonLetters = "ABCDEF".sumBy { ch ->
+    
+            Math.min(secret.count { TODO() }, guess.count { TODO() })
+        }
+        return Evaluation(rightPositions, commonLetters - rightPositions)
+    }
+    
+    fun main(args: Array<String>) {
+        val result = Evaluation(rightPosition = 1, wrongPosition = 1)
+        evaluateGuess("BCDF", "ACEB") eq result
+        evaluateGuess("AAAF", "ABCA") eq result
+        evaluateGuess("ABCA", "AAAF") eq result
+    }
+	
+	
+pretty cool, right?
+
+now let´s to the explanation:
+"Let's see how the mastermind task can be solved in the functional style. We have an incomplete solution, where we need to fill the remaining parts. 
+At first, we need to **count the number of letters guessed right with their positions**.
+The number of letters that occur at the same place as both in secret and guess strings. 
+##### the zip function
+The zip function is really helpful for that. **When you zip two strings, it returns your list of pairs, where each pair consists of the characters at the same places from these strings.** We zip secret and guess. 
+**If any pair in the resulting list consists of two similar characters, that means this character is guessed correctly with this position**. Thus, to count the number of right positions, we need to count the number of pairs where the first character from secret is equal to the second character from guess.
+That's the solution for counting right positions.
+
+After that, we need to **count the number of wrong positions, letters that are guessed correctly, but stay not in their correct positions.** 
+
+We first **find the number of common letters, the letters that are overall guessed correctly ignoring their positions.** 
+
+In the end, **we'll just subtract the number of right positions from common letters to get to the number of wrong positions**. 
+
+To **find the number of common letters, we analyze each letter in our alphabet and see how many times it's present in the common letters set**. 
+
+Let's see how it works for an example first. 
+
+Our first sample doesn't contain the repetitive letters. For each letter, we mark whether it's present in secret and guess, and then find the letters that are present in both strings. One means the letter is present in a string, zero, that it's not there. In our case, the common letters are B and C.
+
+Now let's check the more complicated sample with repetitive letters. We'll take the A character first and see how many times it occurs in secret and guess. It's repeated three times in secret and twice in guess. The minimum of these two numbers gives us the number of A occurrences in the common letters set. All the rest letters are found only in one of the strings. So for B, C, and F, the same counting gives zero as a result. The resulting common letters set consists then only of two A's. 
+
+Now it's time to complete the function implementation. We check for each letter how many times it occurs in secret and guess, then we compare these numbers to get a minimum. To count the occurrences of letter, we compare it with it, which refers to letters in a string. 
+
+First letters in secret, then letters in guess. That gives us the desired implementation. 
+
+We can check these samples to make sure it works for them."
+
