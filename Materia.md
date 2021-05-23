@@ -1901,5 +1901,149 @@ There is an important distinction in the approaches of tracking absences of thin
 I guess this is one of the most successful features in Kotlin. It's proven to be really useful and relevant one for real-life programming."
 
 
+### Lambdas
+
+**Lambda is an anonymous function that can be used as an expression**, for instance, passed as an argument to another function vacation. 
+ex: 
+
+    button.addActionListener { println("hi")}
+
+In older versions of Java, anonymous classes were used for the same purpose. 
+
+this java code:
+    
+    button.addActionListener( new ActionListener() {
+    	@Override
+    	public void actionPerformed(ActionEvent e) {
+    		System.out.println("hi");
+    	}
+    })
+
+can be replaced by:
+    
+    button.addActionListener { println("hi")};
+
+
+Modern developed languages including Kotlin as well as Java starting from **Java 8**, support Lambdas which provide more concise syntax for the same functionality.
+
+Having Lambdas in a language also makes it possible to work with collections in a functional style. 
+
+You can use such functions as **filter** or **map** which make the overall code more readable. 
+
+ex:
+what´s an average age of employees working in Prague?
+    
+    val employees: List<Employee>
+    
+    data class Employee (
+    	val city: City, val age: Int
+    )
+    
+    employees.filter {it.city == City.PRAGUE}
+    	.map { it.age} 
+    	.average()
+    	
+    	
+
+First, let's focus on the Lambda syntax. In Kotlin, **Lambda always goes in curly braces**. 
+#### Lambda syntax
+**{** x: Int, y: Int -> x + y **}**
+
+To distinguish regular curly braces, for instance, for if expression, from curly braces used in Lambdas, IDE highlights in bold curly braces for Lambdas. 
+
+When you see highlighted in bold curly braces, that means you see a Lambda. 
+
+Inside curly braces, **first you specify the parameters**, then **the arrow**, then** the.Lambda body**. 
+
+ex:
+**{** x: Int, y: Int -> x + y **}**
+x: Int, y: Int -- are the parameters
+-> -- arrow
+ x + y -- lambda body
+
+
+If you pass a Lambda as an argument, you can put the whole Lambda inside the parentheses. 
+ex:
+list.any ({ i: Int -> i > 0})
+
+that´s a full syntax of lambda
+
+However, there is a better way to express that. 
+
+**You can move Lambda out with parentheses, if the Lambda is the last argument**.
+ex:
+list.any () { i: Int -> i > 0}
+
+**and if the parentheses are empty, you can omit them. **
+list.any  { i: Int -> i > 0}
+
+This way you have the nicer syntax. 
+
+At first, the same syntactic convention of moving Lambda out of parentheses was used in groovy and it worked quite well there. Kotlin reuses the same idea which is proven to be really convenient. 
+
+**If the type of the argument can be inferred, if it's clear from the context, it can be omitted. **
+ex:
+list.any  { i -> i > 0}
+
+**If your Lambda has their own argument, you can replace its name with '*it*'. 
+It's an automatically generated name for your Lambda, if it has only one argument, and you don't specify a different argument name. **
+ex:
+list.any  { it> 0}
+
+**If you want to express some complicated logic and need a multi-line Lambda, then you just write several lines of code inside the parentheses. The last expression of this Lambda is the result. **
+
+list.any  { 
+	println("processing $it" )
+	it> 0 -- *the last expression is the result*
+}
+
+I want to highlight another mostly syntactic feature. 
+
+**If your Lambda takes a pair of values as an argument or as in this case map entry, you can use so-called destructuring syntax. **
+ex:
+map.mapValues { entry -> "${entry.key} -> ${entry.value} !" }
+
+OBS: entry in this case use destructing declarations syntax instead
+
+
+The same syntax was used to **iterate over a map** in a for loop, by assigning a key and a value to separate variables.
+
+**Instead of declaring one Lambda parameter entry, you can declare two parameters at once by put them inside extra parentheses. **
+ex:
+map.mapValues { (key, value) -> "${entry.key} -> ${entry.value} !" }
+
+The compiler will automatically destruct entry to key and value. 
+
+That's quite convenient many functions take map entries in argument, and you can use this nicer syntax to work with such functions. 
+
+**If one of the Lambda parameters is not used, you can replace its name with the underscore. **
+map.mapValues { (**_**, value) -> "${entry.value} !" }
+
+OBS: you can omit parameter name if the parameter is unused
+
+It's more readable and you don't need to invent a name for the parameter if it's not used. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		
 
