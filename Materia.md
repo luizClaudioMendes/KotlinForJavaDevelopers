@@ -2024,6 +2024,228 @@ OBS: you can omit parameter name if the parameter is unused
 It's more readable and you don't need to invent a name for the parameter if it's not used. 
 
 
+### Common Operations on collections
+
+As we've already discussed, the Kotlin standard library consists mostly of extensions on Java collections. 
+
+A lot of these extensions work with the collections in a functional style and use lambdas. 
+
+For instance, filter and map are defined in the Kotlin standard library as extension functions. 
+
+Now, we'll discuss the most common operations and how exactly do they behave. 
+
+#### Filter
+initial list --- 1, 2, 3, 4
+lambda --- { it % 2 == 0}
+result list --- 2, 4
+
+Let's start with filter.** It filters out the content of the list and keeps only their elements that satisfy the given predicate**. 
+
+In this case, we have the predicate checking that a number is even and only even numbers that are present in the resulting list. 
+
+#### Map
+initial list --- 1, 2, 3, 4
+lambda --- { it  * it }
+result list --- 1, 4, 9, 16
+
+**Map transform each element in a collection and stores all the resulting elements in a new list**. 
+
+Here, we find the square of each given number and the result is a list of squares. 
+
+Note to that, **the resulting list contains as many elements as the initial collection**. 
+
+#### any (all, none)
+initial list --- 1, 2, 3, 4
+lambda --- { it  % 2 == 0 }
+result list --- true
+**There are several predicates checking whether the given facts about the elements are true**. 
+
+##### any
+initial list --- 1, 2, 3, 4
+lambda --- { it  % 2 == 0 }
+result  --- true
+
+it´s true because at least one element of the list is true
+
+For instance,** any checks that there is at least one element satisfying the given predicate, here, we check whether there is at least one even number in the list and the result is true.** 
+
+##### all
+initial list --- 1, 2, 3, 4
+lambda --- { it  % 2 == 0 }
+result  --- false 
+
+**All checks whether all elements satisfy the predicate** 
+
+##### none
+initial list --- 1, 2, 3, 4
+lambda --- { it  % 2 == 0 }
+result  --- false 
+
+**none makes sure that none of the elements satisfies the given predicate.** 
+
+#### find
+initial list --- 1, 2, 3, 4
+lambda --- { it  % 2 == 0 }
+result list --- 2
+
+**Find finds an element satisfying the given predicate and returns it as a result. **
+
+**If there is no required element, find returns null. **
+
+You can use another name for the same predicate. This anonymous function is called **firstOrNull**. 
+
+#### First / FirstOrNull
+**FirstOrNull does the same as find**, it returns you an element or null as a result. 
+
+**First takes a predicate and throws an exception if no elements satisfying the predicate was found.** 
+
+#### count
+initial list --- 1, 2, 3, 4
+lambda --- { it  % 2 == 0 }
+result  --- 2
+
+**Count counts the number of elements that satisfy the given predicate**. 
+
+#### partition
+initial list --- 1, 2, 3, 4
+lambda --- { it  % 2 == 0 }
+result list 1  --- 2, 4
+result list 2 --- 1, 3
+
+**Partition divides the collection into two collections.** 
+
+Filter returns only the elements that satisfy the predicate, and in a sense, throws out all the elements that don't satisfy the predicate. **If you need to keep both groups of elements that satisfy or do not satisfy the predicate, you can use the partition**. 
+
+**It returns two collections, for the good elements and the remaining ones.** 
+
+#### groupBy
+initial list --- [{Alice, 31}, {Bob, 29}, {Carol, 31}]
+lambda --- { it.age }
+result list 1 (age 29)  --- {Bob, 29}
+result list 2 (age 31) --- [{Alice, 31}, {Carol, 31}]
+
+**If you need to divide your collection into more than two groups, you can use GroupBy**. 
+
+**As an argument, you provide the way how to group the elements. **
+
+What should be the grouping key? For instance, here we group personal elements by their age. 
+
+The result is, map from the given key to a list of elements that satisfy this key. 
+
+Here, **the result is a map from the age to a list of all people of this age**. 
+
+This often the case that, as a result of grouping, **you'd prefer ONE element instead of a list**. 
+
+If the** key is unique**, then it's **more useful to have a map of the key to this unique element as a result**. 
+
+That's what they **associateBy** function does for you. 
+
+#### associateBy
+initial list --- [{Alice, 31}, {Bob, 29}, {Carol, 31}]
+lambda --- { it.name }
+result map 1  --- Alice - {Alice, 31}
+result map 2  --- Bob - {Bob, 29}
+result map 3 ---  carol - {Carol, 31}
+
+It also performs groping, **but it returns you one element as the map value**. 
+
+**Note that, associateBy should be used to run the keys unique.** 
+
+**If it's not**, pay attention that** duplicates are removed**, so the last element will be chosen. 
+
+If you key isn't unique, it's safer to use groupBy to avoid losing some of the elements. 
+
+#### associate
+initial list --- 1, 2, 3, 4
+lambda --- { 'a' + it to 10 * it }
+result map 1  --- a,10
+result map 2 --- b, 20
+result map 3 --- c, 30
+result map 4 --- d, 40
+
+**You can use as associate to build a map based on a list.** 
+
+**As an argument, you pass allowed to creating the key value pair based on each list element, then associate builds a map by filling in specified keys and values.** 
+
+The first value in a pair becomes key in the map, the second becomes the value. 
+
+Here, a plus it specifies how to create keys, while 10 multiply, it is the way to create values. 
+
+Note that, it's often convenient to use the least element as a key and provide a way to fetch the value in the lambda.
+
+#### zip
+initial list 1 --- 1, 2, 3, 4
+initial list 2 --- a, b, c, d
+result list of pairs --- [{1,a}, {2,b}. {3,c} , {4,d}]
+
+**Zip provides you with a way to organize a couple of lists.** 
+
+It zips like a zipper the elements from two lists. It returns you a list of pairs where each pair contains one element from the first list and another element from the second list.
+
+IMPORTANT
+**If their initial list have different sizes, then the resulting list of pairs will have the length of the shortest list, the remaining elements from the longest list will be ignored.**
+
+#### zipWithNext
+initial list 1 --- 1, 2, 3, 4
+result list of pairs --- [{1,2}, {2,3}. {3,4}]
+
+The frequent use case is to** zip neighboring elements in the list**. 
+
+That can be done with the help of the zipWithNext function.
+**It returns you a list of pairs where each pair consists of neighboring elements is from the initial list**. 
+
+Note that, each element except the first and the last one will belong two pairs. Like three in this example list is the second element in the second pair and the first element in the third pair. 
+
+Both zip and zipWithNext have overloaded versions taking a lambda as an argument that specifies how each pair of elements must be transformed. 
+
+
+#### flatten
+initial --- [ [a, b,c], [d, e], [f, g, h i] ]
+result --- [a, b, c, d, e, f, g, h, i]
+
+**Flatten is an extension function that must be called on a list of lists.** 
+
+**It combines all the elements from the nested list and returns you a list of these elements as the result.** 
+
+We can say, it flattens the list of lists contents. 
+
+#### flatMap - combines map and flat
+initial string 1 --- "abc"
+initial string 2 --- "def"
+apply **map**
+result of map 1 --- [{a}, {b}, {c}]
+result of map 2 --- [{d}, {e}, {f}]
+apply **flatten**
+result --- [{a}, {b}, {c}, {d}, {e}, {f}] 
+
+Another useful function is flatMap. 
+
+**It combines two operations, map and flat.** 
+
+**The argument to flatMap must be a lambda that converts each initial element to a list**. 
+
+Here, we first map each string into a list of characters. 
+
+In the middle layer after applying the first map operations, we have at list of lists.
+
+**Often, you'd prefer list of elements as a result instead and flatten does that. **
+
+Here, flatMap returns a list of characters obtained from initial strings. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
