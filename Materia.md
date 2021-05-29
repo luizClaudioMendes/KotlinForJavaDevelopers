@@ -2387,6 +2387,255 @@ There is the hero, Lady Lauren, which specifies female gender, as it therefore, 
 
 
 
+### Operations Quiz - II
+
+Let´s continue the quiz. 
+
+#### groupBy { }
+The next question uses the function groupBy. 
+    
+    val mapByAge: Map<Int, List<Hero>> = 
+      heroes.groupBy { it.age }
+    val (age, group) = mapByAge.maxBy { (_, group) -> 
+      group.size
+    }!!
+    println(age)
+
+What is printed here? 
+
+Let's look at this example step-by-step and understand what's going on here. 
+
+**val mapByAge: Map<Int, List<Hero>> = 
+      heroes.groupBy { it.age }**
+
+When we group elements by their ages, the groupBy returns a **map from the age to a list of heroes of this age**.
+ex:
+**mapOf( 
+	60 to listOf (Hero("the captain", 60, MALE)),
+	42 to listOf (Hero("frenchy", 42, MALE)),
+	9 to listOf (Hero("the kid", 9, null)),
+	29 to listOf (
+		Hero("Lady Lauren", 29, FEMALE),
+		Hero("first mate", 29, MALE)),
+	37 to listOf (Hero("sir stephen", 37, MALE))
+)**
+
+
+Then we call maxBy on the resulting map. 
+ex:
+**val (age, group) = mapByAge.maxBy { (_, group) -> 
+      group.size
+    }!!
+    println(age)**
+
+It finds the entry with the maximum value of the provided expression. 
+
+In this case, group size. 
+
+Here, the maximum group size is two elements for the age 29. 
+
+Thus, it makes By function will return 29 as the age, and the highlighted list as the corresponding group. 
+
+Group print age 29. 
+
+
+#### associateBy { }
+The next question uses the function associateBy. 
+    
+    val mapByName: Map<String, Hero> = 
+      heroes.associateBy { it.name }
+    mapByName["Frenchy"]?.age
+
+Now, regroup the elements by their names, by using their **associateBy** function. 
+
+In our case, the name property is a unique key. 
+
+The resulting map is the map from name to hero object where it says the element by the name friendship, and get his age. 
+
+He's 42. 
+
+I want to highlight here two different ways to access elements in a map. 
+
+#### access elements in a map
+You can either use **square brackets**, or map** getValue** function to access the specific element. 
+ex:
+**mapByName["Frenchy"]?.age** // 42
+or
+**mapByName.getValue("Franchy").age** // 42
+
+OBS:
+**The access via square brackets can return null as a result. **
+
+Here, you see that to access age later we use save collaborator. 
+**mapByName["Frenchy"]*?***
+
+**GetValue function, will throw 'noSuchElementException'**, if there is no such element.
+
+You don't need to use safe access afterward, but you see that the exception might be thrown.
+**mapByName.getValue("Franchy").age**
+
+#### getOrElse( ) { }
+The next example builds a map using the associate function and illustrate how getOrElse works. What is the result of the last expression? 
+    
+    val mapByName = heroes.associateBy { it.name }
+    val unknownHero = Hero("Unknown", 0, null)
+    mapByName.getOrElse("unknown") { unknownHero }.age
+
+The **associate** function builds a **map** creating a **key value pair** from each element in the list. 
+
+In this case, it builds a map from string from names to ages. 
+
+**The getOrElse function returns the value corresponding to the given key, if the key is present in the map. **
+
+**Otherwise, it computes the provided Lambda and returns the result of this Lambda. **
+
+
+It's a very useful function because if the element is already present in the map, then nothing will be computed.
+
+The default value pass inside of the Lambda will be calculated only if needed. 
+
+In these case, it's needed and the getOrElse function returns zero since unknown key is not present in the map.
+
+#### BAD PRACTICE -- BAD CODE HARD TO READ
+The next question is much less straightforward than the previous ones. It tries to illustrate how the code **should not be written with Lambdas**, is an example of batch code which is hard to read. 
+
+You can spend some time trying to understand what's going on here and guess the answer. 
+
+    val (first, second) = heroes
+      .flatMap { heroes.map { hero -> it to hero } } 
+      .maxBy { it.first.age - it.second.age }!!
+    first.name
+
+
+Let's gradually note what are the problems here. 
+
+* At first, we used **it** in two neighboring clients but **it in the first line has a different type from it in the second line**. 
+
+ex:
+   .flatMap { heroes.map { hero -> **it** to hero } } 
+      .maxBy { **it**.first.age - **it**.second.age }!!
+
+We have the same name because of this syntactic convention that you can replace one argument with it, but these arguments in two different Lambdas have different types, and that is really confusing. 
+
+**Just don´t write code like this**. 
+
+
+To fix that, let's replace the first it with an explicit parameter, and then try to understand what's going on. 
+
+    val (first, second) = heroes
+      .flatMap { first -> 
+	  		heroes.map { hero -> first to hero } } 
+      .maxBy { it.first.age - it.second.age }!!
+    first.name
+
+
+We call flatMap on heroes. 
+
+At first, it builds a list of pairs corresponding to each hero, then it flattens all the pairs.
+
+Let's replace hero parameter name with second to highlight that we are building **pairs of heroes**. 
+      
+       val (first, second) = heroes
+          .flatMap { first -> 
+    	  		heroes.map { second -> first to second } } 
+          .maxBy { it.first.age - it.second.age }!!
+        first.name
+
+**The list corresponding to the first element, the captain, will contain all combinations of two hero elements where the captain is the first element. The similar list will correspond to the second element branch and so on. **
+
+ex:
+"The Captain" to "The Captain"
+"The Captain" to "Frenchy"
+...
+"The Captain" to "Sir Stephen"
+
+	"Frenchy" to "The Captain"
+	"Frenchy" to "Frenchy"
+	...
+	"Frenchy" to "Sir Stephen"
+		...
+						"Sir Stephen" to "The Captain"
+						"Sir Stephen" to "Frenchy"
+						...
+						"Sir Stephen" to "Sir Stephen"
+
+
+
+The unification of all such lists and flattening it will produce the list of all possible pairs. 
+
+Thus the flatMap code here:
+**heroes
+.flatMap { first -> 
+heroes.map { second -> first to second } } **
+constructs the least of all possible pairs of heroes. 
+
+Now, we can extract it to a variable and give it the explicit name, all possible pairs. 
+
+**val allPossiblePairs = heroes
+.flatMap { first -> 
+heroes.map { second -> first to second } } **
+val (first, second) = allPossiblePairs
+	.maxBy { it.first.age - it.second.age } !!
+first.name
+
+Now, it's easier to understand what's going on here. This code is better. 
+
+Now, let's continue and look at the next line. 
+**val (first, second) = allPossiblePairs
+	.maxBy { it.first.age - it.second.age } !!
+first.name**
+
+
+We call **maxBy** on all possible pairs. 
+
+The maxBy function returns a nullable pair which will then assign to two variables (**first** and **second**), similar to how we assigned an pair to two variables. 
+
+We need not an assertion here to make the resulting pair nullable to be able to the structure and assign it in this way.  So we can continue to use the 'it'
+
+ **it**.first.age - **it**.second.age
+
+**MaxBy finds the maximum of all differences in ages of two heroes in one pair**. 
+
+But maximum of the age differences will be reached for pair consisting of the oldest and the youngest heroes.
+
+Basically, this **first** and **second** are just **oldest** and **youngest**. 
+
+ex:
+**val (oldest, youngest) = allPossiblePairs
+	.maxBy { it.first.age - it.second.age } !!
+first.name**
+
+The maximum difference in ages gives us the maximum and the minimum ages. 
+
+**The whole piece of code might be replaced with finding the oldest and the youngest heroes. **
+
+ex:
+val (oldest, youngest) = allPossiblePairs
+	.maxBy { it.first.age - it.second.age } !!
+first.name
+
+can be replaced by:
+ex:
+**val oldest = heroes.maxBy {it.age }
+val youngest = heroes.minBy {it.age }
+oldest.name**
+
+
+Since we don't really use the youngest in this example, we can only find the oldest, excluding the val youngest
+
+**val oldest = heroes.maxBy {it.age }
+oldest.name**
+
+His name is the captain and that's the result that is printed.
+
+The main point of this task, was to **illustrate an example of badly written code so that in the future you could avoid it**, and try to write your code so that it was readable and comprehensible. 
+
+To sum up what we saw in this last example, there are some pieces of advice on what could be done in order to improve readability. 
+
+* At first, we have this problem with 'it' variable. Try not to use it if it has different types in neighboring lines. The it parameter name is good if the Lambda is trivial and straightforward. But if it's going to be more complicated, for instances, in module and Lambdas, it's often better to use explicit parameters. 
+* In any case, when any confusion is possible, prefer using explicit parameter names so that the code was easier to understand. 
+* It´s a good idea to learn the library to know it and not try to re-implement all the methods. Is often possible to find the function that will do the job for you. 
+
 
 
 
