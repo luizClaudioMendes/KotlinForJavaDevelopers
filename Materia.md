@@ -2233,6 +2233,160 @@ In the middle layer after applying the first map operations, we have at list of 
 Here, flatMap returns a list of characters obtained from initial strings. 
 
 
+### Operations Quiz - I
+
+In this quiz, we'll use the class Hero. 
+It has name, age, and gender properties. 
+Gender might be male or female or if it is unspecified, then null is stored. 
+
+    data class Hero(
+    	val name: String,
+    	val age: Int,
+    	val gender: Gender?
+    )
+    
+    enum class Gender {MALE, FEMALE}
+
+We will use the following values that are specified in the list. Your tasks for most of the questions will be to find the result of the expression. These heroes are based on the card game, Lifeboat. 
+    
+    val heroes = listOf (
+    	Hero("The Captain", 60, MALE),
+    	Hero("Frenchy", 42, MALE),
+    	Hero("The Kid", 9, null),
+    	Hero("Lady Lauren", 29, FEMALE),
+    	Hero("First Mate", 29, MALE),
+    	Hero("Sir Stephen", 37, MALE)
+    )
+
+#### last()
+The first task is to find the result of this first expression. 
+
+    heroes.last().name
+
+The answer is Sir Stephen. 
+
+We obtain the last element in the list and, then we get his name. 
+
+The Kotlin Standard Library contains useful functions. 
+
+**First**, **last**, also **firstOrNull**, and **lastOrNull**. 
+
+* **First and last throw an exception if there are no elements.**
+
+* **FirstOrNull and lastOrNull return null if the list is empty. **
+
+All these functions are overloaded and are available as the functions with predicates. 
+
+Here, we use at the last function without arguments. 
+But there is a similar one that takes a Lambda as an argument. 
+
+For instance here, what is the result? 
+    
+    heroes.firstOrNull { it.age == 30 }?.name
+
+The result is null because there is no elements satisfying the given predicate. 
+
+There is no hero of age 30. 
+
+FirstOrNull returns null. Then we use safe access and null is returned as the result of the whole expression. 
+
+If we use the first function with the predicate, then we'll get no such element exception as a result. 
+    
+    heroes.first { it.age == 30}.name
+    //NoSuchElementException
+
+**First must return no nullable element**. 
+
+So when there is no required element, it can only throw an exception. 
+
+#### distinct()
+The next question uses the function that we haven't yet discussed, but I think you can guess what it is doing by its name. 
+    
+    heroes.map { it.age }.distinct().size
+
+
+**Distinct function returns only the elements which are distinct, different. **
+
+Let's see step-by-step what is going on in this example.
+
+First, we map the heroes to a list of their ages. 
+
+//[60, 42, 9 , 29, 29, 37]
+
+Then we call distinct on it. 
+
+//[60, 42, 9 , 29, 37]
+
+It returns a new list which contains only **non-repetitive** elements. 
+
+In this case, the duplicate of 29 was removed. 
+
+At last, we get the size of the resulting list which is five. 
+
+#### filter { }
+The next question uses the filter function. 
+    
+    heroes.filter { it.age < 30 }.size
+
+
+Here, filter returns all the heroes whose age is less than 30.
+
+There are three such elements so the result is three. 
+
+#### partition { }
+The next question is about partition. 
+
+**We use the partition function that divides the list of elements into two lists.** 
+    
+    val (youngest, oldest) = heroes.partition { it.age < 30 }
+    oldest.size
+
+* **The first list contains the elements that satisfy the predicate, heroes that are younger than 30. **
+
+8 **The second list contains all the rest elements, heroes that are not younger than 30**. 
+
+In our case, the size of both lists is three. 
+
+#### maxBy {} , minBy{}
+The next question employs the function maxBy. 
+    
+    heroes.maxBy { it.age }?.name
+
+You can use **maxBy** and **minBy** functions if the elements are not comparable themselves, but they can be compared by a property or in another specified way. 
+
+Here, we compare elements by comparing the corresponding values of the age property. 
+
+We find the maximum by comparing ages. 
+
+**This maxBy function returns the first element with the maximum value of the property or null if the collection is empty**. 
+
+Here, we find the oldest Hero which is The Captain. His name is the result. 
+
+#### all { }
+The next question is about predicates. 
+We use all function. 
+    
+    heroes.all { it.age < 50 }
+	
+The result is false. 
+
+**We check whether all the heroes are younger than 50.** 
+
+That's not true because we have The Captain who is older. 
+
+#### any { }
+The next question is about the any predicate. 
+    
+    heroes.any { it.gender == FEMALE }
+
+The answer is **true**. 
+
+We check whether any element in the collection satisfies the given predicate. 
+
+There is the hero, Lady Lauren, which specifies female gender, as it therefore, satisfies this predicate.
+
+
+
 
 
 
