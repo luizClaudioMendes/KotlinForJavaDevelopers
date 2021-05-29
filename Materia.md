@@ -2674,6 +2674,216 @@ fun main(args: Array<String>) {
 }
 
 
+### Function Types
+
+Now, you'll learn about function types. We'll also discuss how you can pass Lambda as an argument to Java method, and also touch a topic of function types and probability. 
+
+#### function type
+
+val sum = { x: Int, y: Int -> x + y }
+
+In Kotlin, you can store Lambda in a variable like above, but you can specify which type does the variable have, like this:
+
+val sum **(Int, Int) -> Int** = { x, y -> x + y }
+
+If we specify this type explicitly, we'll see a so-called function type. 
+
+this means that sum receives 2 parameters of type Int ((Int, Int)) and returns an Int (**-> Int**). 
+
+
+First, parameter types are written inside the parentheses and then an arrow, then the return type. 
+
+In this case, is the type that takes two integer parameters and returns an integer as a result. 
+
+so, if we have this:
+
+val isEven = {i: Int -> i % 2 == 0} 
+
+What will be the type of isEven variable here? 
+
+it will be** (int) -> Boolean**
+
+so we can write this lambda this way:
+
+**val isEven: (Int) -> Boolean =  {i: Int -> i % 2 == 0} **
+
+In this case, we have a Lambda that takes Int as a parameter and returns Boolean as a result, you can see the corresponding function type. 
+
+Note the difference between storing a Lambda and storing the result of applying this Lambda. 
+
+**val isEven: (Int) -> Boolean =  {i: Int -> i % 2 == 0} ** -- stores the lambda
+
+**val result: Boolean = isEven(42)** // true -- stores the result of the application of the lambda passing the parameter, in this case, 42
+
+
+* **Lambda is the whole function containing the logic of how to compute the Boolean result from the given Int argument**, 
+
+* **the result, in this case,  is simply a Boolean value. **
+
+You can call a variable of function type as a regular function, providing all the necessary arguments. 
+
+In this case, you call a variable is even as it was a regular function isEven(). 
+
+To call a Lambda stored in a variable might be convenient if you want to postpone calling a Lambda, store it somewhere and call it on later. 
+
+**When you store a Lambda in a variable, you can pass this variable whenever an expression of function type is expected**. 
+
+val isEven: (Int) -> Boolean =  {i: Int -> i % 2 == 0}
+
+val list = listOf(1, 2, 3, 4)
+**list.any(isEven)** //true
+**list.filter(isEven)** [2,4]
+
+For instance, to all the functions working with collections in a functional style like any or filter. 
+
+#### calling directly a lambda
+You can even call a Lambda directly, putting parentheses right after lambdas curly braces, like this:
+
+{ println("hey") } **()**
+
+**However, such invocation looks a bit strange**. 
+
+If you need to call a Lambda right in place, better user run.
+
+**run** { println("hey") }
+
+The version with run does exactly the same, but it's much more readable than the code above. 
+
+#### SAM interfaces in java
+
+    void postponeComputation (int delay, Runnable computation)
+
+**In Java, you can pass a Lambda instead of a SAM interface**, an interface with only one single abstract method. 
+
+**SAM means Single Abstract Method**
+and have this structure:
+    
+    public interface Runnable {
+    	public abstract void run();
+    }
+
+#### Mixing Kotlin and Java -- lambdas
+In Kotlin, you can use the function types directly, but when you mix Kotlin and Java, you'd want to do the same as in Java. 
+
+Whenever you call a method that takes SAM interface as a parameter, you can pass a Lambda as an argument to this method instead, like this:
+
+**postponeComputation(1000) { println(42) }**
+
+In Kotlin, if you want to create an instance of such interface explicitly, you can use the **outer generated SAM constructor** like in this case, a runnable and pass a Lambda as its only argument. 
+
+**val runnable = Runnable {}**
+
+#### functions types of lambdas and nullability
+Now, let's talk about function types and nullability. 
+
+I want to highlight the difference between **function type that returns nullable value** and **nullable function type**. 
+
+**( ) -> Int?** vs **(( ) -> Int)?**
+
+To better understand that, answer, which lines here don't compile? 
+    
+    #1 val f1: () -> Int? = null
+    #2 val f2: () -> Int? = { null } 
+    #3 val f3: (() -> Int)? = null
+    #4 val f4: (() -> Int)? = { null }
+    
+
+What is the difference between these types? 
+
+**( ) -> Int?** vs **(( ) -> Int)?**
+
+* The first one means that, return type is nullable. That's a possible mistake when you simply add a question mark after the function type. It means that you make the return type of this function type nullable, not the whole type itself.
+
+* the second one, is the whole type nullable, and to use that, you need to use the parentheses around the type of the lambda. 
+
+#### lambda returning null
+    
+     val f2: () -> Int? = { null } 
+In the example, you saw null in curly braces. 
+
+**It's a Lambda without arguments that always returns null.** 
+    
+    val f3: (() -> Int)? = null
+this line shows that **the variable which can store either null reference** or **Lambda returning Int value**. 
+
+Let's go back to the task. 
+    
+    val f1: () -> Int? = null
+
+**this line doesn't compile** because you can't store null in a variable of a non nullable type. 
+
+**To store null, you need to declare a variable of a nullable type** as in here:  
+    
+    val f3: (() -> Int)? = null
+----------
+    
+    val f2: () -> Int? = { null } 
+
+This line is fine because you have here a Lambda that can't return nullable Int. 
+
+The Lambda in this line always returns null, so it fits. 
+
+-------
+val f4: (() -> Int)? = { null }
+**This line doesn't compile** because the compiler expects the Lambda that returns only integer values. 
+
+But here, we tried to assign there a Lambda which returns null, that is not allowed, instead of assingning a null value like this:
+
+**val f4: (() -> Int)? =  null **
+
+#### working with a nullable function type 
+    
+    val f: (() -> Int)? = null
+
+You can ask, how you should call a variable of a nullable function type? 
+
+You can't call it as a regular function because it's nullable.
+
+So which options do you have? 
+
+    if( f != null) {
+    	f()
+    }
+
+You can **check the variable explicitly for being not null**, then you can simply call it because smart cast applies here and the value is smart cast to the value of non nullable type. 
+
+
+
+An alternative is to **use the safe access syntax**, 
+    
+    f?.invoke()
+
+but in this case, you call a variable of function type by calling its **invoke** function. 
+
+
+Each variable or function type can be called by invoke, but regularly you don't need that since there is a simpler alternative, **the syntax to call it directly**. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
