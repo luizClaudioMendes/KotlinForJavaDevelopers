@@ -2858,6 +2858,222 @@ but in this case, you call a variable of function type by calling its **invoke**
 
 Each variable or function type can be called by invoke, but regularly you don't need that since there is a simpler alternative, **the syntax to call it directly**. 
 
+### Member References
+
+Now, you'll learn about member references, and we'll discuss what is the difference between bound and unbound references. 
+
+#### member references
+    class Person(val name: String, val age: Int)
+    people.maxBy { it.age }
+
+Like Java, Kotlin has member references, **which can replace simple Lambdas that only call a member function or return a member property**, it can convert Lambda to member reference automatically when it's possible, like this:
+
+** people.maxBy { it.age }**
+*convert lambda to reference*
+** people.maxBy { Person::age }**
+
+The syntax for member reference is the same as in Java.
+
+#### syntax
+**First goes the class name, then the double colon, then the member which we refer. **
+
+As we've previously discussed in Kotlin, **you can store Lambda in a variable, however, you can't store a function in a variable. **
+
+**val isEven: (Int) -> Boolean = { i: Int -> i % 2 == 0 }**
+
+
+**It's not like in a truly functional language where each function is a variable. **
+
+No, in Kotlin **there is a clear distinction between functions and variables**, that are connected with how JVM works under the hood. 
+
+#### you can´t store a function in a variable
+
+**fun isEven (i: Int) : Boolean = i % 2 == 0**
+val predicate = **isEven**
+
+this won´t compile.
+
+
+**If you try to assign a function to a variable, you'll get a compiler error**. 
+
+To fix this issue, use the function reference syntax. 
+
+**Function references allow you to store a reference to any defined function in a variable to be able to store it and call it later.**
+
+so, like in the example above, that won´t compile, you have to do this:
+
+**val predicate = ::isEven**
+
+now it will compile.
+
+Keep in mind that this syntax is just another way to call a function inside the Lambda, underlying implementation are the same. 
+
+so, this:
+**val predicate = ::isEven**
+is the same as this:
+**val predicate = { i: Int -> isEven(i) }**
+
+
+Here, the full analogous syntax is a Lambda that only calls is even faction. 
+
+If a reproach member is a **property**, or it's a **function that takes zero or one argument**, then *member reference syntax isn't that concise in comparison with the explicit Lambda syntax*. 
+
+However,** if the reproached function takes several arguments, you have to repeat all the parameter names as Lambda parameters, and then explicitly pass them through**, that makes this syntax robust. 
+    
+    val action = { person: Person, message: String -> sendEmail(person, message) }
+    
+    val action = ::sendEmail
+
+Member references allow you to hide all the parameters, because the compiler infers the types for you, just like above.
+
+#### passing function reference as an argument
+    
+    fun isEven (i: Int) : Boolean = i % 2 == 0
+    
+    val list = listOf (1, 2, 3, 4)
+    list.any(::isEven)  //true
+    list.filter(::isEven) // [2, 4]
+
+You can **pass a function reference as an argument**, whenever your Lambda tends to grow too large and to become too complicated, it makes sense to extract Lambda code into a separate function, then you use a reference to this function instead of a huge Lambda. 
+
+so, imagine that the isEven lambda is a big one, there is no need to replicate it here
+**list.any(::isEven)  //true**
+and
+**list.filter(::isEven) // [2, 4]**
+
+#### Bound and non-bound references
+bound means that the referece has a bound to an instace of a object, that it only exists correctly for that specific instance of the object. other instance of the same object will have a different value, so it has another bound.
+
+non-bound refereces means that the reference is a global reference, not attached to the instance itself but attached to the object type.
+    
+    class Person (val name: String, val age: Int) {
+    	fun isOlder (ageLimit: Int) = age > ageLimit
+    }
+    
+    val agePredicate = Person::isOlder // stored the function by reference (regular non-bound reference)
+    
+    val alice = Person("Alice", 29)
+    agePredicate(alice, 21)  // true // called the function stored, passing the arguments required, in this case, the instanciation of the Person object (alice) and the value for comparison required by the function
+
+Now, I want to highlight the difference between bound and non-bound references. 
+
+In Kotlin, **you can create a bound reference**, let's us discuss what it is. 
+
+In the example above, we use a regular non-bound reference, which refers to a member of the person class. 
+
+If we check what type this member reference has, we see that the first argument of the function type is person.
+so, this:
+  ** agePredicate(alice, 21) **
+   
+   is equal as having:
+    ** agePredicate : (Person, Int) -> Boolean = Person::isOlder**
+
+
+Whenever we want to call this variable of function type, we need to pass the person instance explicitly. 
+
+If we look under the hood and check what Lambda does correspond to this member reference, we'll find that this Lambda takes two arguments, person and age limit:
+ 
+ ** agePredicate : (Person, Int) -> Boolean = { person, ageLimit -> person.isOlder(ageLimit) }**
+
+it simply calls the member function isOlder inside on the person element. 
+
+This reference is called **non bound**, since it's **not bound to any specific instance, you can call it on any object of the person class.** 
+
+so, no-bound references you have to pass the object instance as an argument to have it´s result.
+
+
+**Bound reference is a member reference that is attached to a specific instance of the class.** 
+so going back to this:
+
+
+    
+    class Person (val name: String, val age: Int) {
+    	fun isOlder (ageLimit: Int) = age > ageLimit
+    }
+    
+    val agePredicate = Person::isOlder // stored the function by reference (regular non-bound reference)
+    
+    val alice = Person("Alice", 29)
+    agePredicate = alice::isOlder  // true 
+
+Here, the **alice variable is an instance of the class person, and you can bound member efforts to these specific instance.** 
+
+If we look at the type of the bound member reference:
+
+val agePredicate: **(Int) -> Boolean** = alice::IsOlder
+
+we see that now there is **no person parameter because the person instance is already set**, the isOlder function takes int as a parameter, and the bound reference also expect only int as an argument. 
+
+If we check which Lambda corresponds to this member reference to the hood, we'll find the Lambda that calls the member is older on the bound instance.
+
+val agePredicate: (Int) -> Boolean = **{ ageLimit -> alice.isOlder(ageLimit) }**
+
+In this case, this bound instance is Alice variable. 
+
+#### Bound to 'this' reference
+
+class Person (val name: String, val age: Int) {
+	fun isOlder(ageLimit: Int) = age > ageLimit
+	
+	fun getAgePredicate() = this::isOlder
+}
+
+Member reference can be bound to these reference. 
+
+Here, we'll return a predicate directly from the class person. 
+
+This predicate is a member reference to isOlder function, where 'this' is the object of which this member reference is bound to, and is usual for these we can emit it, like this:
+
+    fun getAgePredicate() = ::isOlder
+
+Now, we have this nice short syntax **without left-hand side**, just reference to the member. 
+
+To make sure you understand it, answer the question, what is the type of this member reference here? 
+We have two options, either taking person or without person as an argument. 
+    
+    class Person(val name: String, val age: Int) {
+      fun isOlder(ageLimit: Int) = age > ageLimit
+      fun getAgePredicate() = ::isOlder
+    }
+
+
+The right answer is '(Int) -> Boolean', it is a bound reference which stores the person of this instance inside, the reference will always be bound to a specific instance of the person class. 
+
+We can call getAgePredicate only at the specific instance, like this:
+    
+    val predicate = alice.getAgePredicate()
+
+which becomes the bound object for member reference.
+
+Now the question for you, is isEven in this example a bound reference or not? Yes or no are the possible answers.
+    
+    fun isEven(i: Int): Boolean = i % 2 == 0
+    
+    val list = listOf(1, 2, 3, 4) 
+    list.any(::isEven) 
+    list.filter(::isEven)
+    
+
+The answer is no, because here it's just a reference to a top-level function. 
+
+There is no stored object in which this function is bound to.
+
+**Whenever you see the function and reference without the left-hand side, it's either a reference to a top-level function or a bound reference. **
+
+In IDE you can always navigate and see which faction that this function reference refers to, it's a very convenient. 
+
+Now you can use both bound and unbound references in your code. 
+
+Bound reference store the object on which the member can be later called, while not bound reference can be called on any object of a given type. 
+
+
+
+
+
+
+
+
+
 
 
 
