@@ -3296,6 +3296,7 @@ There is no direct analogs to break other than extracting the for each call to a
 
 This explanation of how to use return inside lambda completes our discussion of functional programming so far. 
 
+	
 ### Is Kotlin a functional language?
 
 Would you call Kotlin a functional language? 
@@ -3319,6 +3320,84 @@ But immutable things are also first-class citizens in Kotlin, you can use them f
 So, I would say if you rely on immutability, if you use higher-order functions, and lambdas, and function types of course, you're doing Kotlin in the functional style. 
 
 And it's very often beneficial, so I totally recommend it.
+
+
+	
+### Nice String
+A string is nice if at least two of the following conditions are satisfied:
+
+It doesn't contain substrings bu, ba or be;
+It contains at least three vowels (vowels are a, e, i, o and u);
+It contains a double letter (at least two similar letters following one another), like b in "abba".
+Your task is to check whether a given string is nice. Strings for this task will consist of lowercase letters only. Note that for the purpose of this task, you don't need to consider 'y' as a vowel.
+
+Note that any two conditions might be satisfied to make a string nice. For instance, "aei" satisfies only the conditions #1 and #2, and ```"nn"` satisfies the conditions #1 and #3, which means both strings are nice.
+
+Example 1
+"bac" isn't nice. No conditions are satisfied: it contains a ba substring, contains only one vowel and no doubles.
+
+Example 2
+"aza" isn't nice. Only the first condition is satisfied, but the string doesn't contain enough vowels or doubles.
+
+Example 3
+"abaca" isn't nice. The second condition is satisfied: it contains three vowels a, but the other two aren't satisfied: it contains ba and no doubles.
+
+Example 4
+"baaa" is nice. The conditions #2 and #3 are satisfied: it contains three vowels a and a double a.
+
+Example 5
+"aaab" is nice, because all three conditions are satisfied.
+
+Run TestNiceString to check your solution.
+    
+    
+    package nicestring
+    
+    fun String.isNice(): Boolean {
+        var conditionsSatisfied = 0
+    
+        if(!conditionContainsSubstrings(this)) {
+            conditionsSatisfied += 1
+        }
+    
+        if(conditionContainsVowels(this)) {
+            conditionsSatisfied += 1
+        }
+    
+        if(conditionDoubleLetter(this)) {
+            conditionsSatisfied += 1
+        }
+        return conditionsSatisfied >= 2
+    }
+    
+    fun conditionDoubleLetter(s: String): Boolean {
+        for (i in s.indices) {
+            if(i == 0) continue
+            if(s[i] == s[i - 1]) return true
+        }
+        return false
+    }
+    
+    fun conditionContainsVowels(s: String): Boolean {
+        var vowelCounter = 0
+        s.forEach {
+            when (it) {
+                'a', 'e', 'i', 'o', 'u' -> {
+                    vowelCounter += 1
+                }
+            }
+        }
+        return vowelCounter >= 3
+    }
+    
+    fun conditionContainsSubstrings(s: String): Boolean {
+        return s.contains("bu") || s.contains("ba") || s.contains("be")
+    }
+    
+
+
+
+
 
 
 
