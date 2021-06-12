@@ -3783,6 +3783,217 @@ response:
     }
     
     
+### Solution: Taxi Park, tasks 1-3
+
+Let's discuss how we can solve the taxi park assignment. 
+
+The first task is to find the drivers that didn't perform any trips. There are two basic ways to solve this task. You can use either drivers or trips as a starting point.
+
+The first solution starts with all drivers, and you filter out those drivers who performed some trips.
+
+The drivers without trips stay in the resulting list. 
+
+#### filter one list with results from another list
+    
+    allDrivers.filter { d -> trips.none { it.driver == d}}.toSet()
+    
+
+Finally, you need to convert it to a set because it requires set as a result. 
+
+In the second case, you find the drivers that performed some trips and then you subtract the resulting collection from set of all drivers. 
+    
+    allDrivers.minus(trips.map {it.driver})
+    
+Thus you get the drivers that performed no trips.
+
+    
+    allDrivers - (trips.map {it.driver})
+    
+
+Note that in Kotlin, you can use minus syntax directly instead of calling the minus function. 
+
+We'll discuss the details of how exactly it works in the next module.
+
+**Note that the second solution, subtracting the drivers that performed some trips from the set of all drivers, is slightly better since it does only one iteration via map. The first solution calls none for each driver. **
+
+In the worst-case scenario, the number of iterations will then be the multiplication of the number of drivers and the number of trips.
+
+However, the difference between these two solutions isn't that noticeable for not the worst-case scenario. 
+
+----------------
+
+The second task is to find faithful passengers. 
+
+The passengers that performed at least the required number of trips.
+
+There again two basic ways to solve this task. 
+
+Either start with trips, or start with passengers. 
+
+Let's look at two sample solutions and try to improve them. 
+    
+    trips
+    	.flatMap { it.passengers } //all passengers in trips list
+    	.groupBy { it }
+    	.filter { it.value.size >= minTrips}
+    	.map {it.key }
+    	.toSet()
+    
+
+The first solution starts with trips. 
+
+At first, we use flatMap to get the list of all the passengers that made some trips.
+
+**Each passenger is present in this list as many times as the number of trips he or she performed**. 
+
+Then by grouping the same passengers elements, we can find how many trips each passenger performed. 
+
+The solution works and passes all the tests; however, it's not very readable. 
+
+**It makes the common readability mistake. **
+
+**It uses several it in neighboring lines and it in different lines have different types. **
+
+Because of that, it's not clear what's going on here.
+
+It's counter-intuitive that the variable of the same name will have different types and different meanings in indifferent lines. 
+
+How we can improve that? 
+
+In the first case, I would convert Lambda a reference. 
+    
+    	.flatMap(Trip::passengers)
+    
+**Then it's clear that we get passengers for each trip. **
+
+When we group it, I would rather say passenger, passenger. 
+    
+    	.groupBy { passenger -> passenger }
+    
+There is nothing wrong in repeating it if it improves the readability. 
+
+Then I would again introduce an explicit parameter for it, on the filter line.
+
+
+Here it, is map entry, but we are only interested in the value of this entry to access the group of equal passengers elements.
+    
+    	.filter { (_, group) -> group.size >= minTrips }
+    
+I would say that everywhere destruction declaration syntax is better than one variable for entry.
+
+We don't use key here, so we can replace its name with underscore.
+
+This exactly use case might be also simplified.
+
+**Filter can be replaced with filter values**, and now we have group as the only argument. 
+    
+    	.filterValues { group -> group.size >= minTrips }
+    
+The last simplification. 
+
+Instead of first transforming entries to the keys, and then converting the resulting list to a set , you can access keys directly.
+ so you change this:
+     
+    	.map {it.key }
+        .toSet()
+
+into only this:
+
+	.keys
+
+------------------
+    
+    allPassengers
+    	.partition { p ->
+    		trips.sumBy { t ->
+    			if (p in t.passengers) 1 else 0
+    		} >= minTrips
+    	}
+    	.first
+    	.toSet()
+    
+The second solution starts with the list of passengers and keeps only those who satisfy the given predicate. 
+
+This solution uses functional features but it somehow over uses them. 
+
+For instance, it uses partition here where filter would be null.
+
+**Partitions splits the initial list of passengers into two lists.** 
+
+But then only the first list is later used. 
+
+There is no sense to use partition if you are interested only in one of the parts. 
+
+so the code will look like this:
+    
+    allPassengers
+    	.filter { p ->
+    		trips.sumBy { t ->
+    			if (p in t.passengers) 1 else 0
+    		} >= minTrips
+    	}
+    	.toSet()
+    
+
+You have the specific filter function for that. 
+
+By the way, if you're interested in the remaining part in the elements that do not satisfy the given predicate, you can use filterNot. 
+
+Then, this solution uses a rather complicated way to count the number of passengers that satisfy the given condition, as seen here:
+
+  		trips.sumBy { t ->
+    			if (p in t.passengers) 1 else 0
+    		} >= minTrips
+
+It sums either zero or one, depending on whether a passenger took part in a specific trip. 
+
+The direct way to express that is to use count, like this:
+    
+    trips.count { p in it.passengers } >= minTrips
+
+There's our final solution. 
+
+    
+    allPassengers
+    	.filter { p ->
+    		trips.count { p in it.passengers) >= minTrips
+    	}
+    	.toSet()
+    
+
+
+It simply uses filter and count.
+
+That was my simplification for the solutions. 
+
+
+------------------
+
+The next function finds all the passengers who performed more than one trip, with a specific driver. 
+
+Again, you can start either with passengers or with trips. 
+
+Since the solutions are very similar to the previous task, I'm only showing the improved versions.
+
+solution 1:
+    
+    trips
+    	.filter { trip -> trip.driver == driver}
+    	.flatMap ( Trip::passengers)
+    	.groupBy { passenger -> passenger }
+    	.filterValues { group -> group.size > 1 }
+    	.keys
+
+solution 2:
+    
+    allPassengers
+    	.filter { p ->
+    		trips.count { it.driver == driver && p in it.passengers} > 1
+    	}
+    	.toSet()
+
+
+
 
 
 
