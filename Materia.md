@@ -3394,6 +3394,219 @@ Run TestNiceString to check your solution.
         return s.contains("bu") || s.contains("ba") || s.contains("be")
     }
     
+### Solution: Nice String
+
+the response i gave in the above topic, it´s one solution which works and passes all the tests but doesn't use the full power of the Kotlin functional features. 
+
+It represents what can be submitted as a solution. 
+
+Let's try to improve it and make it more functional. 
+
+So, let´s see if we can improove it further.
+
+#### check if a string doesn´t contain another string
+
+i´ve made it this way:
+    fun conditionContainsSubstrings(s: String): Boolean {
+            return s.contains("bu") || s.contains("ba") || s.contains("be")
+        }
+    
+
+ Let's improve this solution and start with the first condition. 
+ 
+ Here, we check that a string doesn't contain any of the specified substrings.
+ 
+Instead of repeating this check for every substring, we can put all the substrings in a set and then check the condition for each element in the set. 
+    
+    val noBadSubstrings = setOf("ba", "be", "bu").all { !this.contains(it) }
+    
+
+so, this compares the original string (this) to all of the strings in the set (it)
+
+For all the substrings, the following must be satisfied. 
+
+The initial string doesn't contain this substring. 
+
+**this** refers to the string, receiver of the function, to string itself and it refers to each of the substrings in turn. 
+
+We use not in the condition, but one exclamation mark is often not very noticeable. 
+
+Thus, we can use another predicate that doesn't need this exclamation mark.
+
+Instead of all, we can use none. It performs the same check. None of the substrings is the part of the initial strength. 
+
+    
+    val noBadSubstrings = setOf("ba", "be", "bu").none { this.contains(it) }
+    
+
+
+These are our improved results for the first check. 
+
+#### count the number of vowel letters in a string
+For the second check, we need to count the number of vowel letters.
+
+i have done it this way:
+    
+    var vowelCounter = 0
+            s.forEach {
+                when (it) {
+                    'a', 'e', 'i', 'o', 'u' -> {
+                        vowelCounter += 1
+                    }
+                }
+            }
+            return vowelCounter >= 3
+    		
+
+But instead of checking every vowel letters separately, we can again put them all in a set. 
+    
+    val hasThreeVowels = count {
+    	it in setOf('a', 'e', 'i', o', 'u') } >= 3
+    
+
+Then we can check for each character in the initial string whether it belongs to this set or not. 
+
+If it's a vowel, we count it. 
+
+We can simplify this logic even more and check whether a character belongs to a string consisting of all vowel letters.
+
+    
+    val hasThreeVowels = count {
+    	it in "aeiou" } >= 3
+	
+
+**Probably, the check for belonging to a set is slightly better in terms of performance** but since we only have five characters, that's not a noticeable difference. 
+
+We are mostly interested in how to make the code more readable now and this last version looks really nice. 
+
+#### check if a letter is equal than the next letter in a string
+    
+     for (i in s.indices) {
+                if(i == 0) continue
+                if(s[i] == s[i - 1]) return true
+            }
+            return false
+    		
+
+well, i have complicated a little bit. Let's see what we can do here. 
+
+We need to check whether a string contains a double letter. 
+
+At first, we can work with indexes directly. 
+
+We check all the indexes in the string by saying from zero to the last index. For each index, we get two characters. By **this** index and by the **next** one, and compare these two neighboring characters.
+    
+    var hasDouble = ( 0 until lastIndex).any { this[it] == this[it + 1]}
+    
+In this way, we compare all pairs of neighboring characters and find the result. 
+
+But there must be a better way to express that.
+
+You can use the **zipWithNext** function.
+
+ZipWithNext zips each character in a string with the next character and returns a list of pairs. 
+
+Each pair consists of two neighboring characters. 
+
+To check that there are two similar letters following one another, you simply check that there is a pair with two equal characters. 
+
+Specifically, you check that the first element in the pair equals the second element. 
+    
+    var hasDouble = zipWithNext().any { it.first == it.second }
+    
+
+ZipWithNext works for lists of any elements. 
+
+There is also another possible solution using the function specific for strings, I mean the windowed function. 
+
+#### windowed function
+    
+    val str = "abcdefg"
+    
+    str.windowed(4) //[abcd, bcde, cdef, defg]
+    
+    str.windowed(3) //[abc, bcd, cde, def, efg]
+    
+    str.windowed(2) //[ab, bc, cd, de, ef, fg]
+    
+**The windowed function returns a list of slices of the given size obtained from the initial string.** 
+
+You can see the results for the slices of the size four, three, and two. 
+
+Note that you can also specify a step between the **starting points** of the neighboring slices. 
+    
+    str.windowed(2, step = 4) // [ab, ef]
+    
+    str.windowed(3, step = 4) // [abc, efg]
+    
+
+
+**If we get the slices of the size two, it gives us basically the same result as zipWithNext, but as a list of strings not a list of pairs. **
+
+--------------------
+
+To solve the initial task, we do a similar thing. 
+
+We check whether the first character in the string equals the second one which is also the last one.
+    
+    var hasDouble = windowed(2).any { it[0] == it[1] }
+    
+Both solutions are possible.
+
+I'll pick the one with the zipWithnext as a result. 
+
+Note that we no longer need the mutable variable now because double is val. 
+    
+    val hasDouble = zipWithNext().any { it.first == it.second }
+    
+	
+It's only one line of code instead of the whole for loop. 
+
+#### counting conditions with result true
+At last, we need to count the number of satisfied conditions. 
+
+so what have i done?
+
+each time a condition was true, it incremented the variable conditionsSatisfied
+    
+    conditionsSatisfied += 1
+    
+
+this solution can be further improved. 
+
+There are many ways to solve this last part.
+
+You can count the numbers explicitly like here or you can write several if errors expressions but that will be code repetition.
+
+The nicer way to do it would be to build a list of all the conditions, a list of three Boolean values, and see how many true values this list contains. 
+
+Let's try to use filter for that. 
+
+For each Boolean element, you check whether it's true or false and you are only interested in true values. Then you get the size of the resulting list and compare it with two. 
+    
+    return listOf(noBadSubstring, hasThreeVowels, hasDouble).filter { it == true}.size >= 2
+
+**Note that you can filter simply it, you don't need to compare it with true since the least element is a Boolean value. **
+    
+    return listOf(noBadSubstring, hasThreeVowels, hasDouble).filter { it }.size >= 2
+
+
+However, there is one more important improvement. 
+
+**You can replace the combination of filtering size with only one function count. **
+
+    
+    return listOf(noBadSubstring, hasThreeVowels, hasDouble).count { it } >= 2
+
+
+It counts the number of true values among our Boolean conditions in one iteration. 
+
+
+That's our resulting function. 
+
+You can see how we simplified this solution and how much shorter it became.
+
+
 
 
 
