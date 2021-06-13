@@ -4709,6 +4709,145 @@ But the difference with the custom nullable type is that if your variable cannot
 
 So there's the difference between this safe cast and the custom nullable type.
 
+### Solution: Interchangeable predicates
+
+Our task is to complete the implementations of these functions using different predicates. 
+    
+    fun List<Int>.allNonZero() = all { TODO() }
+    fun List<Int>.allNonZero1() = none { TODO() }
+    fun List<Int>.allNonZero2() = any { TODO() }
+    
+    fun List<Int>.containsZero() = any { TODO() }
+    fun List<Int>.containsZero1() = all { TODO() }
+    fun List<Int>.containsZero2() = none { TODO() }
+	fun main (args: Array<String>) {
+		val list1 = listOf (1,2,3)
+		list1.allNonZero() eq true
+		list1.allNonZero1() eq true
+		list1.allNonZero2() eq true
+		
+		list1.containsZero() eq false
+		list1.containsZero1() eq false
+		list1.containsZero2() eq false
+	}
+    
+And the purpose of this task is to illustrate that the predicates **all**, **none**, and **any** are interchangeable. 
+
+So let's start, the first function is rather straightforward because we need to check that all the elements are non zero. 
+
+And we have this explicit all function, so we just check that all the elements are non zero, as written, as expected. 
+
+    
+    fun List<Int>.allNonZero() = all { it != 0 }
+    fun List<Int>.allNonZero1() = none { TODO() }
+    fun List<Int>.allNonZero2() = any { TODO() }
+    
+    fun List<Int>.containsZero() = any { TODO() }
+    fun List<Int>.containsZero1() = all { TODO() }
+    fun List<Int>.containsZero2() = none { TODO() }
+
+    
+
+With the next function, that's a bit less trivial, when we check that there is one element that is non zero, that's the same as saying that there is no zero element, no zero is present in the list. 
+
+That's exactly what **none** function checks, that there is no zero element.
+
+    
+    fun List<Int>.allNonZero() = all { it != 0 }
+    fun List<Int>.allNonZero1() = none { it == 0 }
+    fun List<Int>.allNonZero2() = any { TODO() }
+    
+    fun List<Int>.containsZero() = any { TODO() }
+    fun List<Int>.containsZero1() = all { TODO() }
+    fun List<Int>.containsZero2() = none { TODO() }
+
+So you see that these predicates are interchangeable, these functions are interchangeable, you just need to negate the predicate in order to use the different function. 
+
+And that's just the boolean logic, so it's rather straightforward. 
+
+With **any**, it's a little bit less trivial because we have to negate the result of the function.
+
+When you think about it, **none** says there is no element, and it's the same as saying **not any**.
+
+Not any means there is no such element, as none also says, there is no such element. 
+
+So if we say not any zero, that's the same as saying no zero, that's the same as saying none zero.
+
+    
+    fun List<Int>.allNonZero() = all { it != 0 }
+    fun List<Int>.allNonZero1() = none { it == 0 }
+    fun List<Int>.allNonZero2() = !any { it == 0 }
+    
+    fun List<Int>.containsZero() = any { TODO() }
+    fun List<Int>.containsZero1() = all { TODO() }
+    fun List<Int>.containsZero2() = none { TODO() }
+
+Let's move on to the second task. 
+
+The first one is again straightforward because it simply duplicates the function name. 
+
+We say we are checking that this list contains zero, zero that means that any, we check that it contains any zero element. 
+
+So when we use any, we explicitly check that the list contains zero.
+
+    
+    fun List<Int>.allNonZero() = all { it != 0 }
+    fun List<Int>.allNonZero1() = none { it == 0 }
+    fun List<Int>.allNonZero2() = !any { it == 0 }
+    
+    fun List<Int>.containsZero() = any {it == 0 }
+    fun List<Int>.containsZero1() = all { TODO() }
+    fun List<Int>.containsZero2() = none { TODO() }
+
+Then we know already that none is not any, so we can negate it the other direction as well. 
+
+And we'll have here this not very easy idea of not none.
+
+    
+    fun List<Int>.allNonZero() = all { it != 0 }
+    fun List<Int>.allNonZero1() = none { it == 0 }
+    fun List<Int>.allNonZero2() = !any { it == 0 }
+    
+    fun List<Int>.containsZero() = any {it == 0 }
+    fun List<Int>.containsZero1() = all { TODO() }
+    fun List<Int>.containsZero2() = !none { it == 0 }
+
+And we know again that all and  none are interchangeable, just with different predicates. 
+
+So we can replace here, we can use the same none, so here we already have this solution. 
+
+When we replace none to all, in this case, we just need to negate the predicate, and that's what we do.
+
+    
+    fun List<Int>.allNonZero() = all { it != 0 }
+    fun List<Int>.allNonZero1() = none { it == 0 }
+    fun List<Int>.allNonZero2() = !any { it == 0 }
+    
+    fun List<Int>.containsZero() = any {it == 0 }
+    fun List<Int>.containsZero1() = !all { it != 0 }
+    fun List<Int>.containsZero2() = !none { it == 0 }
+
+Conceptionally, this is the same as containsZero, because if all are no zero, that means that there is no zero. 
+
+And in order to check that it has at least one zero, then we have to negate this predicate.
+
+The main purpose of this task is for you, **once you have the idea that all these predicates are interchangeable, and the most important thing is it's better to use the most simple predicate for the case. **
+
+There's something that I've seen in the code, that's a good idea to keep in mind, that there's no need to negate the whole expression.
+
+There is always the way to simplify the code without using the negation, because the negation is really, really hard to read and understand, as you can see here. 
+
+But here we have our task, where you have to specifically write such code. 
+
+But if you see the code like this in the code, you may ask like, why it's originally is so complicated manner, why just not simply I replace it with other function and a more simple predicate?
+
+That's something to keep in mind, that it's often possible to simplify your logic. We can run the code to make sure that we have all okay.
+
+Yes, yes, so we've done everything correctly.
+
+
+
+
 
 
 
