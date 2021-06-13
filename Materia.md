@@ -4686,6 +4686,30 @@ Or whether it checks, whether it's possible to call it on null or not.
 
 I can use it, but I do it with care in order not to confuse the readers of your code.
 
+### Solution: Safe casts
+
+In this task, we need to define a variable so that the first cast returned as null and the second one, cast to a nullable type throw an exception. 
+    
+    val s = "abc"
+    println (s as? Int) //null
+    println (s as Int?) //exception
+
+This task is a good illustration for the difference between safe cast and there regular cast to an nullable type. 
+    
+     println (s as? Int) //null
+        println (s as Int?) //exception
+
+Any variable that stores not an integer value will do the job. 
+
+So for instance, in this example you define a string, and after that, if you just use safe cast, then you get null as a result because that's how safe cast work.
+
+If it doesn't cast, it's simpler transfer null. 
+
+But the difference with the custom nullable type is that if your variable cannot be casted to a nullable type, then you'll have here ClassCastException that the cast is impossible. 
+
+So there's the difference between this safe cast and the custom nullable type.
+
+
 
 
 
