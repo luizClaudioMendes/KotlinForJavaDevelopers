@@ -4605,6 +4605,89 @@ Other solutions are also possible.
 
 There are many ways to solve this task. I just wanted to share one possible solution.
 
+### Solution: Checking whether string is null or empty
+
+The task here is to implement an extension function IsEmpyOrNull.
+
+And the most interesting thing here is that the receiver might be nullable. 
+
+Here we have a nullable string, and we want to call this function on a nullable string.
+    
+    val s1: String? = null
+    val s2: String? = ""
+    
+    s1.isEmptyOrNull() eq true
+    s2.isEmpttOrNull() eq true
+    
+    val s3  = "   "
+    s3.isEmptyOrNull () eq false
+    
+
+Indeed,** in Kotlin, you can define functions on a nullable receiver, like extension functions.** 
+
+That's not a problem, we just mark this receiver as nullable. 
+
+And then you may implement your function. 
+    
+    fun String?.isEmptyOrNull()
+
+When you consider a receiver as just an extra parameter, with this very nice special syntax to call it, it becomes very easy to understand what's going on.
+
+And to implement it, you can simply check your parameter for null or being empty. 
+
+    
+    fun isEmptyOrNull(s: String?) = s == null || s.isEmpty()
+
+
+You will do the same jig. 
+
+We convert parameter to receiver.
+
+And now you see there are. 
+
+Also, note how we can explicitly check this for being null. 
+
+So instead of the extension function to nullable, this might be null. 
+
+Here, the smart-cast is used, because now this is converted to a non-null type after the check.
+
+    
+    fun String?.isEmptyOrNull() = this == null || this.isEmpty()
+	
+Note that is very useful for such simple cases like strings. 
+
+**The library actually contains functions isNullOrEmpty, and isNullOrBlank, which checks whether string is null, or empty, or blank. **
+
+OBS: Specifically for this task, I have to swap the name in order to let you implement it yourself. 
+
+But you use such functions in Kotlin from the standard library by default. 
+
+Indeed, when you use the code and you see that something is called just as a regular reference.
+
+That doesn't always mean that the variable is not null.
+
+So for most of the cases, that's true.
+
+But note that there is this special case when there is a function on a nullable receiver. 
+
+In this case you just call it like a regular reference without, say, success. 
+
+That's something to keep in mind. 
+
+**Because this confusion is possible when you define your own such functions, you may define your own functions on a nullable receiver.**
+
+But do it with care, because it's better if your function explicitly tells in its name that this receiver might be null. 
+
+Because in this case, it's easier to understand what's going on. 
+
+And you don't have to guess how it checks null.
+
+Or whether it checks, whether it's possible to call it on null or not. 
+
+I can use it, but I do it with care in order not to confuse the readers of your code.
+
+
+
 
 
 
