@@ -5306,6 +5306,201 @@ You've learned that you can define a property in an interface and why it can't b
 
 You now know how to define a read-only or even mutable extension property. 
 
+### Lazy or late initialization
+now you'll learn how to define a Lazy Property. 
+
+Also how to define the property that should be initialized not in the constructor, but sometime later. 
+
+#### Lazy Property
+Lazy Property is a property which values are computed only on the first success.
+
+It's lazy in a sense that it won't do anything unless the result is really needed. 
+
+In Kotlin, you define a Lazy Property using** by lazy** syntax.
+**
+val lazyValue: String by lazy {
+	println("computed!")
+	"Hello"
+}**
+
+It's an example of applying the future delegated properties which we'll discuss in the next course.
+
+But even now you can use it for defining lazy properties. 
+
+**Lazy is a function that takes lambda as an argument. **
+
+Inside this lambda, you provide a way to compute a value that should be stored in this property.
+
+When you access this property, you see that** its value is computed only once**, when we access it for the first time.
+
+After that, the stored value is returned.
+
+*so, with the example above, if we call it 2 times, it will print:*
+
+*computed!
+Hello
+Hello*
+
+The question for you is, how many times computed will be printed in this example when we don't access the property at all?
+
+The options are as zero or one.
+    
+    val lazyValue: String by lazy { 
+      println("computed!")
+      "Hello" 
+    }
+    
+    fun main(args: Array<String>) {
+      // no lazyValue usage
+    }
+
+The right answer is of course zero, because **the lazy property is lazy in a sense that it won't do anything unless it's needed**.
+
+In this case, the result is not needed and that's why it's not computed at all. 
+
+#### late initialization -- lateinit
+Our next topic is late initialization.
+
+It's very useful for some frameworks. 
+
+For instance for Android activities initializing of unit tests or dependency injection frameworks.
+
+Sometimes, we want to initialize the property not in the constructor, but in a specially designated for that purpose method.
+    
+    class KotlinActivity: Activity() {
+    	var myData: MyData? = null
+    	
+    	override fun onCreate (savedInstanceState: Bundle?) {
+    		super.onCreate(savedInstanceState)
+    		
+    		myData = intent.getParcelableExtra("MY_DATA")
+    	}
+    }
+
+Here, we initialized the myData property in onCreate method, but not in the constructor. 
+
+We can't define it as a known nullable property, because we don't have an initial value. 
+
+We can use null as an initial value.
+
+But in this case, we have to make the property nullable. 
+
+Then, every time we access it, we have to cope with nullability. 
+
+*like:*
+    
+    .... myData?.foo ....
+
+*and that´s bad.*
+
+But we know that this property cannot be null after it was properly initialized. 
+
+That's where lateinit properties can be really helpful.
+
+    
+    class KotlinActivity: Activity() {
+    	lateinit var myData: MyData
+    	
+    	override fun onCreate (savedInstanceState: Bundle?) {
+    		super.onCreate(savedInstanceState)
+    		
+    		myData = intent.getParcelableExtra("MY_DATA")
+    	}
+    }
+	
+
+We can define the properties **lateinit**. 
+
+After that, we can use it as a **value of a non-nullable type**. 
+
+What happens if the property wasn't initialized properly? 
+
+We access it as a regular known nullable property. 
+
+Nullpointer exceptions are possible. 
+
+In fact at runtime, an exception is indeed thrown, but a runtime exception with a detailed message of what was wrong. 
+
+*kotlin.UnintializedPropertyAccessException: lateinit property myData has not been initialized*
+
+In this case, we get the message that the myData property wasn't initialized, and we see what caused these alternative more detailed version of NullPointerException.
+
+##### constraints using lateinit properties
+There are some constraints that apply to lateinit properties.
+
+For instance, it can't be val.
+
+###### lateinit has to be var
+it has to be **var**
+
+That is connected with how the lateinit properties are implemented under the hood.
+
+**Lateinit variable can't be final at the bytecode level. **
+
+Because it is initialized not in the constructor, but later.
+
+It doesn't conform to the final constraint. 
+
+Because of that, it can be changed from Java. 
+
+Because it can be changed from Java if it was val, it would be confusing.
+
+Imagine val property which can't be modified from Kotlin but can be modified from Java. Because of that, it was decided that it's safer to explicitly say that **this property is always mutable**. 
+
+##### lateinit can not be nullable
+Another constraint obvious is that, the type of this property is non-nullable. 
+
+Thus a purpose of lateinit to make the type of the variable non-nullable, so that we won't have to cope with nullability issues.
+
+##### lateinit can not be primitive type
+Another constraint, is that lateinit property can't have a primitive type. 
+
+That's also connected with the underlying implementation. 
+
+**Only reference types might be initialized with null **under the hood. 
+
+The compiler could possibly initialize integer values with some constants. 
+
+But which exact constants?
+
+Is unclear. 
+
+That's not how it works.
+
+If you know which our value, the primitive can be initialized with, you can do it by hand. 
+
+Use zero for an integer for instance. 
+
+**Thus the lateinit modifier can be only applied to non-nullable reference types.**
+
+#### checking whether lateinit var was initialized
+It's possible to check whether lateinit property was or wasn't initialized. 
+    
+    class MyClass {
+    	lateinit var lateinitVar: String
+    	
+    	fun initializationLogic() {
+    		println(this::lateinitVar.isInitialized)  // false
+    		lateinitVar = "value"
+    		println(this::lateinitVar.isInitialized)  // true
+    	}
+    }
+
+To do that, you call **isInitialized** on the property reference. 
+
+We saw examples of member references including property references in the previous module. 
+
+That is another case when property references might be useful, when you check whether your lateinit property was or was not initialized. 
+
+You've learned about lazy and lateinit properties. 
+
+This conclude our discussion of properties so far. 
+
+We'll also cover the nuances of how to define constants as properties, at the end of the next section. 
+
+
+
+
 
 
 
