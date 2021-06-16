@@ -5136,6 +5136,180 @@ solution:
             return bar
         }
 		
+### More about Properties
+
+now you'll see examples of how to define properties in interfaces and how to define extension properties. 
+
+#### property in interface
+You can define a property in an interface. Why not? 
+
+Under the hood, it's just a getter.
+    
+    interface User {
+    	val nickname: String
+    }
+
+Then you can redefine this getter in subclasses in the way you want.
+
+    
+    interface User {
+    	val nickname: String
+    }
+	
+	class FacebookUser (val accountId: Int) : User {
+		override val nickname = getFacebookName(accountId)
+	}
+	
+	class SubscribingUser(val email: String ) : User {
+		override val nickname: String
+			get() = email.substringBefore('@')
+	}
+	
+A question for you here. Which property among these two is calculated on each access? 
+
+The **nickname** property with a **custom getter** in subscribingUser **calculates the value each time you access it**. 
+
+The property in FacebookUser stores the value in a field. 
+
+The property with a custom getter doesn't have the corresponding field. 
+
+OBS: Note that** all the properties in interfaces are open** and **can't be used** in smart casts.
+    
+    open property can´t be used in smart casts
+    
+    interface Session {
+    	val user: User
+    }
+    
+    fun analyzeUserSession (session: Session) {
+    	if(session.user is FacebookUser) {
+    	println(session.user.accountId)
+    	}
+    }
+
+
+#### open properties
+**Open means that they can be written in subclasses, they are not final. **
+
+When you check whether the session user property is of type FacebokUser and afterward try to use a smart cast to access the account ID property of FacebookUser. 
+
+The compiler shows you an error.
+
+*compiler error: Smart cast to 'FacebookUser' is impossible, because 'session.user' is a property that has open or custom getter*
+
+It's impossible because this property has an open or custom getter.
+
+If a property has a custom getter, **it's not safe to use it in a smart cast because the custom getter can return your new value on each access. **
+
+There is no guarantee that after you cast there will be the same value.
+
+If the property is open, then the actual implementation in a subclass may have the custom getter which will return your different values on each access.
+
+So, it's also not safe. 
+
+What you can do here, you can introduce a local variable, then this much cost applies.
+
+    interface Session {
+    	val user: User
+    }
+    
+    fun analyzeUserSession (session: Session) {
+		val user = session.user
+    	if(user is FacebookUser) {
+    	println(user.accountId)
+    	}
+    }
+	
+
+**this works!**
+
+Alternatively, you can use other language mechanisms which we'll discuss later. 
+
+**Note also that smart casts don't also work for mutable properties, because the mutable property might be changed in a different thread after you have checked it for being of a specific type.** 
+
+To fix this, you again introduce a local variable. 
+
+Sometimes smart casts will work from mutable local variables. 
+
+#### extension properties
+In Kotlin, you can define extension properties. 
+
+The syntax is very similar to the one of defining extension functions. 
+    
+    extension properties
+    
+    val String.lastIndex: Int
+    	get() = this.length - 1
+    
+    val String.indices: IntRange
+    	get() = 0..lastIndex
+    	
+    
+
+**You simply define a property, but specify their stereotypes first.**
+
+You can access the receiver as **this** reference inside accessories. 
+
+Or you can emit **this** reference and call members as in the second example. 
+
+You can call extension properties as they were member properties.
+
+The syntax looks nicer in the same way as it works for extension functions. 
+
+The question for you. What do you think does the extension property perform any optimizations in terms of the stored value? 
+
+Here, we have this ABC string and we call an extension property twice on it. 
+How many times the getter will be cold? 
+
+Probably, it's somehow optimized and the value is stored. 
+
+What's your guess? 
+    
+    val String.medianChar 
+      get(): Char? {
+        println("Calculating...")
+        return getOrNull(length / 2) 
+      }
+    
+    fun main(args: Array<String>) { 
+      val s = "abc"
+      println(s.medianChar) 
+      println(s.medianChar)
+    }
+
+Of course, **there are no optimizations. **
+
+This extension property is compiled to the get medianChar static method with an extra parameter under the hood which is called on each access. 
+
+There is no magic here. 
+
+Extension properties are very similar to extension functions, but their only difference is the difference syntax. 
+
+**The one without parenthesis when you call it´s a property**.
+
+#### mutable extensions properties
+You can define mutable extension properties.
+    
+    var StringBuilder.lastChar: Char
+    	get() = get(length - 1)
+    	set(value:  Char) {
+    		this.setCharAt(length -1, value)
+    	}
+
+Here, we define the mutable extension property lastChar on StringBuilder.
+
+It allow us to get or update the last character. 
+
+You then can use it as a regular property with the concise syntax to access setChar that just assigns a value to a property. 
+
+You've learned that you can define a property in an interface and why it can't be smart casts.
+
+You now know how to define a read-only or even mutable extension property. 
+
+
+
+
+
 
 
 
