@@ -4845,6 +4845,272 @@ That's something to keep in mind, that it's often possible to simplify your logi
 
 Yes, yes, so we've done everything correctly.
 
+### Properties
+
+In this section, we're going to discuss properties in Kotlin. 
+
+You might already know the concept of Java property.
+
+Unlike Java where a property is not a language construct. Kotlin supports it as a separate language feature.
+
+In a most common scenario for a trivial case, property syntaxes are really concise. 
+
+But you can customize it if needed.
+    
+    java property
+    
+    public class JavaClass {
+    	private int foo = 0;
+    	public int getFoo() {
+    		return foo;
+    	}
+    	
+    	public void setFoo (int foo) {
+    		this.foo = foo
+    	}
+    }
+
+**Java classes contains fields and methods inside. They don't have the direct feature of property.**
+
+However, **if you define a field with the corresponding getter and setter in Java, that concept will be considered a property.**
+
+*so, java has fields and methods. but if you define a getter and setter for a field, then it is considered a property.*
+
+For instance, **a field foo together with getFoo and setFoo methods is called the foo property.**
+    
+    kotlin property
+    
+    class KotlinClass {
+    	var foo = 0
+    }
+
+In Kotlin, a property is absolutely the same idea, the same concept.
+
+The syntax is different. 
+
+You define the property itself rather than separately fields and accessors.
+
+*because kotlin implements under the hood the getters and setters for the field, it is automatically an property.*
+
+But under the hood, the implementation doesn't change. It's the same field and accessors as in Java.
+
+**Read-only & mutable properties**
+
+**property = field + accessor(s)
+val = field + getter
+var = field + getter + setter**
+
+
+When you use a property in Kotlin, you don't call getters or setters.
+
+You use properties directly and access it like a variable. 
+
+**When you access the property by its name, the getter is called under the hood**. **If you want to change its value to call a setter**, you do it like it was a variable. Under the hood, the setter is called.
+
+
+If you use the Kotlin properties from Java, you will need to call getters and setters explicitly like in Java. And Java code looks like Java.
+
+Interestingly, there is no difference whether this contact class is defined in Kotlin or in Java.
+
+If you define a Java class with a field getter and its probably setter following the convention, then in the Kotlin you can use it as a regular Kotlin property.
+
+You access Java properties from Kotlin by their names not via getters and setters. 
+
+The usage of properties now looks much nicer.
+
+The question for you. How many methods does the class Person have under the hood? Note that we don't count the constructors here.
+    
+    class Person (val name: String, var age: Int)
+
+We have one on the property name, which has the corresponding getter under the hood (*because it´s a val property, so it only allow a getter*) and a mutable property age, which has a getter and setter, getAge and setAge, that makes it 3 as a result.
+
+
+This is the Person class written in Java and at the same time, that's what's going on under the hood.
+    
+    public final class Person {
+    	@NotNull
+    	private final String name;
+    	private int age;
+    	
+    	public person(@NotNull String name, int age) {
+    		this.name = name;
+    		this.age = age;
+    	}
+    	
+    	@NotNull
+    	public final String getName() {
+    		return this.name;
+    	}
+    	
+    	public int getAge() {
+    		return this.age;
+    	}
+    	
+    	public final void setAge(int age) {
+    		this.age = age;
+    	}
+    }
+
+At the bytecode level, we have the same implementation as in Java, two fields, constructor, two getters and a setter. 
+
+The Kotlin syntax looks nice, straightforward and concise, while the bytecode stays the same.
+
+#### properties without fields
+You can define properties without fields. 
+
+Like in Java, when you can only define getFoo method that returns a value.
+
+If you don't need a field, you omit it.
+
+You can do define the accessors behavior without the necessity to store a value in a field.
+
+**backing field might be absent**
+
+**property = accessor(s)
+val = getter
+var = getter + setter**
+
+Here, we define a custom getter for the isSquare property, which is calculated on each access. 
+    
+    class Rectangle (val height: Int, val width: Int) {
+    	val isSquare: Boolean
+    		get() {
+    			return height == width
+    		}
+    }
+
+**From Kotlin, you use the isSquare property as a regular property, there is no difference.**
+
+
+The question for you is, how many times the phrase, calculating the answer, will be printed in this example?
+    
+    val foo1 = run {
+      println("Calculating the answer...")
+      42
+    }
+    
+    val foo2: Int 
+      get() {
+        println("Calculating the answer...")
+        return 42 
+      }
+    
+    fun main(args: Array<String>) { 
+      println("$foo1 $foo1 $foo2 $foo2")
+    }
+
+We use the run function that we've discussed in the previous module.
+
+It runs the lambda and returns it's result, the last expression. 
+
+We assign 42 to a variable foo1 and print calculating the answer on the way. 
+
+**The lambda result is calculated only once when we assign it, then the property value is used.**
+
+Therefore, the phrase calculating the answer is printed only once here. 
+
+In the second example, the foo2 property has a custom getter which is called on each access.
+
+**Every time we call the property, the getter is called and the calculating the answer phrase is printed. **
+
+That gives us 3 as the number of times the phrase will the printed.
+
+#### fields
+Let's now talk about fields.
+
+In Kotlin, you don't work with fields directly, you work with properties.
+
+However, if you need, you can access a field inside its property accessors.
+
+**you can access field only inside accessors**
+    
+    class StateLogger {
+    	var state = false
+    		set(value) {
+    			println("state has changed: $field -> $value")
+    			field = value
+    		}
+    }
+    
+**It's not visible for other methods of the class. **
+
+You access a field inside its getter or setter by using the **field** keyword. 
+
+Here, we have access a field inside a custom setter. 
+
+We had log in to mark the situation when the property value was changed.
+
+    No backing field
+    
+    enum class State { ON, OFF }
+    
+    class StateLogger {
+    	private var boolState = false
+    	
+    	var state: State
+    		get() = if (boolState) ON else OFF
+    		set(value: State) {
+    			boolState = value = ON
+    		}
+    }
+    
+Note that no backing field is generated by the compiler if you define acessors and don't use field keyword there. 
+
+Here, **state mutable property uses another private property boolState to store the data. **
+
+State only delegates to it. 
+
+**Because state doesn't use field keyword inside its getter and setter, no baking field is generated for it.**
+
+If you don't define accesors for a property, the compiler generates a trivial getter that returns the field value, and a trivial setter updating the value, if the property is mutable. 
+
+You don't access field's getters or setters directly, you only use properties both inside and outside of the class. 
+
+*so, you don´t use exampleClass.getProperty in kotlin, you use exampleClass.property*
+
+I want to highlight here that under the hood the getters and setters are called. 
+
+When you access counter here, then as the bytecode, getCounter is called instead. 
+
+However, inside of the class, the optimization takes place. 
+
+If the property accessors are trivial, their default ones, which return you the value or assign it, then the call is optimized by the compiler, and replaced with accessing the field directly. 
+
+It's not safe to perform this optimization for code outside of the class. 
+
+You might want to change the implementation of the getter, making it non trivial. 
+
+Then you will need to recompile the depending code so that it use the getter instead of the field.
+
+However, in general case, you can use different versions of the class and the depending code so such property change won't be safe.
+
+The older depending code will continue to use the old trivial property implementation. To prevent such problems, outside of the class getters and setters are always called in the generated bytecode. 
+
+But inside the class, optimization performed by the compiler are possible, but only for the trivial properties.
+
+#### accessors visibility
+Sometimes you want a var mutable property to be accessible only as a read-only property outside of the class. For that, you can make a setter private. 
+
+    changing visibility of a setter
+    
+    class LengthCounter {
+    	var counter: Int = 0
+    		private set
+    		
+    	fun addWord(word: String) {
+    		counter += word.length
+    	}
+    }
+
+Then the getter is accessible everywhere. 
+
+And therefore the property is accessible everywhere. 
+
+But it's allowed to modify it only inside the same class. 
+
+Note that we change only the visibility of the setter, but use the default implementation.
+
+We've discussed redundant mutable properties, how to define custom getters and setters, and how to mix Kotlin properties and Java. 
 
 
 
