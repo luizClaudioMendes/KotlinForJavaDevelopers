@@ -5112,6 +5112,30 @@ Note that we change only the visibility of the setter, but use the default imple
 
 We've discussed redundant mutable properties, how to define custom getters and setters, and how to mix Kotlin properties and Java. 
 
+### Unstable val
+Implement the property 'foo' so that it produced a different value on each access. Note that you can modify the code outside the 'foo' getter (e.g. add additional imports or properties).
+    
+    val foo: Int
+        get() = TODO()
+    
+    fun main(args: Array<String>) {
+        // The values should be different:
+        println(foo)
+        println(foo)
+        println(foo)
+    }
+	
+
+solution:
+
+    
+    var bar = 1
+    val foo: Int
+        get() {
+            bar ++
+            return bar
+        }
+		
 
 
 
