@@ -6074,7 +6074,206 @@ You now know how to conveniently use enum constants by importing them or which m
 
 Next, we'll discuss suite classes, inner classes, and class delegation
 
+### Class modifiers - II
 
+now, we'll continue to discuss class modifiers and look at sealed and inner classes. 
+
+You'll also learn about class delegation. 
+
+#### Sealed classes
+In Kotlin, you can put sealed modifier in front of the class. 
+
+Let's discuss what does that mean.
+
+To better understand that, let's look at the class hierarchy and see how we can work with it. 
+    
+    interface Expr
+    class Num(val value: Int) : Expr
+    class Sum(val left: Expr, val right: Expr) : Expr
+
+We are going to represent various simple expressions. 
+
+An expression is either a number or a sum of two expressions.
+
+Imagine you need to evaluate the result of the stored expression. 
+    
+    fun eval(e: Expr) : Int { ... }
+    
+    //1 + (2+ 3)
+    eval(Sum(Num(1), Sum(Num(2), Num(3)))) // 6
+
+The 'eval' function will be responsible for that. 
+
+How would you implement this function? 
+
+You would probably write the code like this using 'when' expression, then you check whether the variable is of type number or is of type sum and afterwards do things accordingly. 
+    
+    fun eval (e: Expr) : Int = when (e) {
+    	is Num -> e.value
+    	is Sum -> eval (e.left) + eval(e.right)
+    }
+
+**The problem with this code is that it doesn't compile. **
+
+The Kotlin compiler says that 'when' expression is not exhausted. 
+
+*Compiler error: 'when' expression must be exhaustive, add necessary 'else' branch
+*
+
+There is no guarantee that there are no other sub-classes implementing expression interface defined somewhere.
+
+There is no guarantee that your code won't break because of that.
+
+To make your intentions explicit, here we'll need to provide your own way to approach this problem, like adding an else clause:
+
+    
+    fun eval (e: Expr) : Int = when (e) {
+    	is Num -> e.value
+    	is Sum -> eval (e.left) + eval(e.right)
+		else -> throw IllegalArgumentException()
+    }
+
+You need to tell exactly what should be done if not all the sub-classes are present in branches. 
+
+As sealed modifiers solves this problem for the case when you already know you're full hierarchy, it restricts that class hierarchy. 
+
+so, instead of using an Interface, we use an class with **sealed** modifier
+
+    
+    sealed class Expr
+    class Num(val value: Int) : Expr
+    class Sum(val left: Expr, val right: Expr) : Expr
+
+
+Now with sealed modifier, we don't need 'else' branch. 
+
+**Note that all the sub-classes must be present in the same file as the parents sealed class.**
+
+It works well for simple hierarchies.
+
+The difference with the previous case is that now expression is a class not an interface. 
+
+That's connected with their underlying implementation. 
+
+Under the hood, the sealed class has a private default constructor so that you couldn't accidentally instantiate this class from Java or create sub-classes.
+
+**so, although it is a class, with sealed modifier, you cannot instantiate the sealed class, even from java calling kotlin**
+
+I want to mention here that there is no full matching support in Kotlin.
+
+**When** with smart costs covers the majority of the cases like this one.
+
+When you check the upper level of expression of being a specific type.
+
+Because it's already so useful, there is no full support from more complicated comparisons. 
+
+Now let's discuss another topic.
+
+#### Inner modifiers and nested classes
+Let's discuss inner modifier and compare inner and nested classes.
+
+First the question, which class, nested or inner, stores the reference to an outer class? 
+
+The answer is inner class. 
+
+**Inner classes stores the reference to the outter class**
+
+In Kotlin, the default for nested and inter-clusters is different than java.
+
+In Java, if you forget to put static in front of the nested class that will generate the reference to the outer class. 
+
+That is something to keep in mind.
+
+If you forget about this, it can lead to memory leaks in a situation when you no longer use the outer class, but the reference treat is nevertheless stored. 
+
+In Kotlin, the default has changed.
+
+Now you get a static nested class by default.
+
+The one that doesn't store the reference to the outer class.
+
+If you want this reference, you will need to explicitly add **inner** modifier. 
+    
+    inner class A
+
+To access this reference of the outer class, you use labeled **this**.
+    
+    inner modifier adds reference to the outer class
+    
+    class A {
+    	class B 
+    	inner class C {
+    		... this@A
+    	}
+    }
+
+As the label name, you specify the name of the outer class (@A). 
+
+#### class delegation
+A couple of words about the class delegation. 
+
+To understand why we need that, let's imagine you have a couple of interfaces and you have a class that implements this interfaces is by delegating to some properties.
+    
+    interface Repository {
+    	fun getById(id: Int) : Customer
+    	fun getAll() : List<Customer>
+    }
+    
+    interface Logger {
+    	fun logAll()
+    }
+    
+    class Controller (
+    	val repository: Repository,
+    	val logger: Logger
+    ) : Repository, Logger {
+    	...
+    }
+
+Instead of implementing all the methods you just need to delegate to some other instances, like this:
+    
+    implementing the methods:
+    
+    class Controller (
+        	val repository: Repository,
+        	val logger: Logger
+        ) : Repository, Logger {
+    	override fun getById(id: Int) = repository.getById(id)
+    	override fun getAll() : List<Customer> = repository.getAll()
+    	override fun logAll() = logger.logAll()
+    }
+
+You can write this code by hand or generate the delegating methods, they are trivial. 
+
+There might be more of them if the interfaces are larger, and all that matters just delegate all the implementations to other instances.
+
+By using class delegation, you can express the same logic simply by saying, "I want to implement this interface by delegating to this instance."
+
+so we get the same code cleaner:
+    
+    class Controller (
+        	val repository: Repository,
+        	val logger: Logger
+        ) : Repository by repository, Logger by logger 
+
+This '**by**' means **by delegating to the following instance**. 
+
+In essence, class delegation allows you to delegate the task of generating trivial matters to the compiler. 
+
+Note that the controller class implements both interfaces, so we can call interface members on it.
+
+like:
+    
+    fun use(controller: Controller) {
+    	controller.logAll()
+    }
+    
+
+Now you know how to constrain the type hierarchies using sealed classes. 
+
+What is the difference between inner and nested classes, and what class delegation can be used for.
+
+Next we are going to discuss the object cured in Kotlin.
 
 
 
