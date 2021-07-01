@@ -5914,7 +5914,165 @@ solution:
            
         }
 
+### Class modifiers - I
 
+In Kotlin, you can use class modifiers to add new semantics to classes.
+
+Modifiers can instruct the compiler to generate new methods or introduce additional constraints.
+
+now, you'll learn the details about enum and data classes.
+
+#### Enums
+Enum class represents an enumeration like in Java.
+
+If you need a class with a fixed number of values, you can define the these values as enum constants.
+    
+    enum class Color {
+    	BLUE, ORANGE, RED
+    }
+
+The difference with Java is that now **enum is not a separate instance, but a modifier before the class keyword**.
+
+The most common way to work with enum constants is to use with  **when** expressions. 
+    
+    fun getDescription(color: Color) = 
+    	when (color) {
+    		BLUE -> "cold"
+    		ORANGE -> "mild"
+    		RED -> "hot"
+    	}
+    
+You specify the actions that should be done for different enum constants. 
+
+As a reminder, **by default, you access enum constants by their full names**. 
+
+    
+    fun getDescription(color: Color) = 
+    	when (color) {
+    		Color.BLUE -> "cold"
+    		Color.ORANGE -> "mild"
+    		Color.RED -> "hot"
+    	}
+    
+	
+But, if you import enum constants you can use them without explicit specification. 
+
+    
+	import mypackage.Colors.*
+	
+    fun getDescription(color: Color) = 
+    	when (color) {
+    		BLUE -> "cold"
+    		ORANGE -> "mild"
+    		RED -> "hot"
+    	}
+    
+
+Inside enum classes, you can define member functions and properties.
+    
+    enum class Color (
+    	val r: Int, val g: Int, val b: Int
+    ) {
+    	BLUE(0,0,225),
+    	ORANGE(255,165,0),
+    	RED(255,0,0);
+    	
+    	fun rgb() = (r * 256 + g) * 256 + b
+    }
+    
+Note the syntax of how we initialize the enum constants. 
+
+You pass different values as constructor arguments inside the parenthesis. 
+
+Afterwards, you call the methods and properties directly on enum constants. 
+
+Probably,** it's the only place when you need a semicolon in Kotlin to separate the enum constant list from the members list**.
+
+#### Data classes
+Next, we're going to talk about data classes. 
+
+We've already come across this feature, but now we're going to discuss what methods are generated under the hood. 
+
+We'll cover the majority of the methods and leave the rest for the next section. 
+
+**Data modifier adds equals, hashCode, to-string, and copy methods.** 
+
+You can call the copy method to copy an instance of the data class and specify only the arguments that must be changed. 
+
+#### copying the instance
+    
+    data class Contact(val name: String, val address: String)
+    
+    contact.copy(address = "new address")
+    
+**The remaining values continues the same. **
+
+Or, you can omit all the arguments and only explicitly copy the reference.
+
+In Java, everyone knows that one **needs to call the equals method instead of the double equal sign,
+Otherwise, you get the reference equality instead of comparing the contents in the case when equals is redefined.** 
+
+In Kotlin, it's no longer the case. 
+
+**By default, when you use the double equals sign, it goes equals under the hood**. 
+
+If your class redefines equals, it will compare the elements in a meaningful way. 
+
+**If you still need reference equality for some reason, you can use the triple equal sign (===). **
+
+The question for you is what will be printed here? 
+
+The only difference is that the second class is defined as data class.
+    
+    class Foo(val first: Int, val second: Int)
+    data class Bar(val first: Int, val second: Int)
+    
+    val f1 = Foo(1, 2) 
+    val f2 = Foo(1, 2) 
+    println(f1 == f2)
+    
+    val b1 = Bar(1, 2) 
+    val b2 = Bar(1, 2) 
+    println(b1 == b2)
+
+The right answer is the third one (false / true)
+
+Let's try to understand what's going on here. 
+
+By default, like in Java, in Kotlin, every class inherits default equals implementation, which just checks reference equality. 
+
+When we compare reference of the type foo, we compare them by reference equality. 
+
+Despite equals is called, by default, this equals is the trivial one.
+
+**OBS: on classes that do not use the data modifier, the double equals (==) compares the reference value not the content values.**
+
+That is why these lines brings false.
+
+If we compare the reference that refer to the same object in memory, we'll get true obviously.
+
+For data classes, the right equals and hashCode methods are generated.
+
+We now compare the elements by their content. 
+
+For the bar data class, here, we again call equals under the hood, but now equals compares the content, so we have true as a result.
+
+**Note that the compiler only uses the properties defined inside the primary constructor for the automatically generated functions like to-string, equals and hashCode.**
+    
+    data class User (val email: String) {
+    	var nickname: String? = null
+    }
+
+
+To exclude a property from the generated implementations, declare it inside the class body like the **nickname** property in this example.
+
+Then, it won't be included in to-string representation and it's value won't be used to compare instances.
+
+Here, the first user equals this second one despite they have different values for the nickname property because on the email values are compared by default. 
+
+You now know how to conveniently use enum constants by importing them or which methods are generated when you add date annotation.
+
+Next, we'll discuss suite classes, inner classes, and class delegation
 
 
 
