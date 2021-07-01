@@ -5882,7 +5882,37 @@ In the playground, you'll find another illustration of the problems that can ari
 
 You've learned the syntax for constructors in Kotlin. 
 
+### NPE during initialization
 
+Complete the declaration of the class A without throwing NullPointerException explicitly so that NPE was thrown during the creation of its subclass B instance.
+
+    open class A(open val value: String) {
+        init {
+    
+        }
+    }
+    
+    class B(override val value: String) : A(value)
+    
+    fun main(args: Array<String>) {
+        B("a")
+    }
+    
+
+solution:
+    
+        open class A(open val value: String) {
+            init {
+        		
+            }
+        }
+        
+        class B(override val value: String) : A(value)
+        
+        fun main(args: Array<String>) {
+            B("a")
+           
+        }
 
 
 
